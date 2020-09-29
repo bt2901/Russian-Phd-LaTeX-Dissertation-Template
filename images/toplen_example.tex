@@ -1,0 +1,25 @@
+\begin{figure}[h]
+  $\hphantom{-----}$$\mbox{A}\
+  \mbox{group}\
+  \mbox{of}\
+  \overbrace{\mbox{\textcolor{my-red}{astronomers}}\ \mbox{managed}}^{l_1=2}\
+  \mbox{to}\ \mbox{detect}\ \mbox{a}\
+  \overbrace{\mbox{\textcolor{my-red}{star}},\ \mbox{orbiting}}^{l_2=2}\
+  \mbox{around}\ \mbox{the}$\\
+  $\hphantom{-----}$$\underbrace{\mbox{\textcolor{my-red}{black}}\ \mbox{\textcolor{my-red}{hole}}\ \mbox{at}\ \mbox{a}\ \mbox{very}\ \mbox{close}}_{l_3=6}\
+  \mbox{distance}.$
+  
+  \vspace{0.35cm}
+  
+  $\hphantom{-----}$$t = \mbox{"Black Holes"} = 
+      \{\mbox{\textcolor{my-red}{black}}, \mbox{\textcolor{my-red}{hole}}, \mbox{\textcolor{my-red}{star}},
+      \mbox{\textcolor{my-red}{astronomer}}\},\ \threshold \sim 0$
+  
+  \caption{
+      An example illustrating the idea of TopLen coherence.
+      As long as words of a topic under interest are observed, they are counted.
+      If some unrelated word is encountered it is also counted but gives a negative penalty.
+      When the absolute value of total penalty appears to be quite big, the process stops, and the number of counted words gives one value of topic length.
+  }
+  \label{plot:toplen_example}
+\end{figure}

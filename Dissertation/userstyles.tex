@@ -309,3 +309,39 @@
 \renewcommand{\chi}{\upchi}
 \renewcommand{\psi}{\uppsi}
 \renewcommand{\omega}{\upomega}
+
+
+
+
+
+% https://tex.stackexchange.com/questions/151984/double-vertical-bar-notation
+\usepackage{mathtools}
+
+\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+  #1\;\delimsize\|\;#2%
+}
+\newcommand{\infdiv}{\infdivx}
+%\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\newcommand{\norm}{\mathop{\mathsf{norm}}\limits}
+
+% перенос формул в тексте
+\newcommand*{\hm}[1]{#1\nobreak\discretionary {}%
+{\hbox{$\mathsurround=0pt #1$}}{}}
+
+
+\definecolor{my-red}{RGB}{176, 0, 0}
+\definecolor{my-pink}{RGB}{253, 123, 124}
+
+\newcommand\dscl[1]{\textbf{\textcolor{blue}{Оговорка: #1}}}
+
+\newcommand{\bsym}{\boldsymbol}
+
+
+\usepackage{algorithm} %[ruled]
+\usepackage{algorithmicx}
+\usepackage[noend]{algpseudocode} %[noend]
+\renewcommand{\thealgorithm}{\arabic{algorithm}.}% Algorithm # is <chapter>.<algorithm>
+\usepackage{fancybox}
+\newsavebox{\algbox} % http://tex.stackexchange.com/questions/356427/add-equation-number-beside-algorithm/356458
+
+\newcommand{\cond}{\mspace{2mu}{|}\mspace{2mu}}
