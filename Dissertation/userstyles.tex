@@ -340,6 +340,34 @@
 \DeclareMathOperator{\coh}{coh}
 
 
+\usepackage{amsthm}
+
+% Оформление окружений типа теорем
+
+%\makeatletter
+% Шаманские притопывания, чтобы ставить точку после номера теоремы
+%  \gdef\th@plain{\normalfont
+%      \def\@begintheorem##1##2{%
+%          \item[\hskip\labelsep\theorem@headerfont ##1\ ##2. ]}%
+%      \def\@opargbegintheorem##1##2##3{%
+%          \item[\hskip\labelsep\theorem@headerfont ##1\ ##2 (##3). ]}%
+%  }
+% \makeatother
+% \theoremstyle{plain}
+% \theorembodyfont{\rmfamily\slshape}
+\newtheorem{Theorem}{Теоремочка}[section]
+
+%\newtheorem{Theorem}{Теорема}[section]
+%\newtheorem{Lemma}[Theorem]{Лемма}
+%\newtheorem{Corr}[Theorem]{Следствие}
+
+\newenvironment{Proof}%
+    %{\par\noindent{\bf Доказательство.\par\nopagebreak}}%
+    {\par\noindent{\bf Доказательство.~}}%
+    {\hfill$\scriptstyle\blacksquare$\par\medskip}
+
+
+
 \usepackage{algorithm} %[ruled]
 \usepackage{algorithmicx}
 \usepackage[noend]{algpseudocode} %[noend]
