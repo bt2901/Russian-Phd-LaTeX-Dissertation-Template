@@ -1,6 +1,6 @@
 \chapter{Повышение интерпретируемости тематических моделей при помощи регуляризации}
 
-В этом разделе будет предложен метод подбора коэффициентов сглаживания, коэффициентов разреживания и весов дополнительных модальностей. Также будет рассмотрен псевдорегуляризатор, основанный на допущении о функциональной зависимости $\Theta = f(\Phi)$ и превносящий в тематическую модель много полезных свойств.
+В этом разделе будет предложен метод подбора коэффициентов сглаживания, коэффициентов разреживания и весов дополнительных модальностей. Также будет рассмотрен псевдорегуляризатор, основанный на допущении о функциональной зависимости $\Theta = f(\Phi)$ и превносящий в тематическую модель некоторые полезные свойства.
 
 В данной главе ставится цель проанализировать поведение предложенного алгоритма на реальных текстовых коллекциях.
 
@@ -303,7 +303,6 @@ L(\Phi, f(\Phi) ) + R(\Phi, f(\Phi) ) \to \max_{\Phi},
 % TopicNet -- открытая надстройка над библиотекой BigARTM, предоставляющая более удобные возможности по работе с пользовательскими регуляризаторами  \cite{bulatov2020topicnet}. Наличие такого регуляризатора будет дополнительным фактором достоверности результатов эксперимента за счёт реализации в сторонней библиотеке и проверке на встроенной и поставляемой вместе с библиотекой текстовой коллекции 20NG. 
 
 \section{Эксперименты}
-\subsection{Описание}
 Эксперименты проводились на известной текстовой коллекции 20newsgroups. Сравнивались несколько тематических моделей: 
 
 \begin{itemize}
@@ -335,23 +334,71 @@ L(\Phi, f(\Phi) ) + R(\Phi, f(\Phi) ) \to \max_{\Phi},
 Для оценки качества полученных тематических моделей использовалось несколько мер качества: разреженность матрицы $\Phi$, cредняя мера Жаккара между верхними токенами (измерялась по 30 токенам), среднее расстояние до ближайшей темы/среднее попарное расстояние между темами (использовалось несколько метрик расстояния), LogLift (по множеству из 30 верхних токенов). Все они описаны в \ref{chap:literature}
 
 \subsection{Результаты}
-\begin{figure}[t]
-    \centering
-    \includegraphics[width=\linewidth]{eps/nips_result.eps}
-    (а) коллекция NIPS, число тем  $|T| = 50$
 
-    \bigskip
-    \includegraphics[width=\linewidth]{eps/twitter_result.eps}
-    (б) коллекция Twitter, число тем $|T| = 50$
+
+
+\begin{figure}
+\begin{tabular}{ccc}
+    \includegraphics[width=55mm]{images/CH4_baselines_diversity_cosine_False.eps} &   \includegraphics[width=55mm]{images/CH4_baselines_diversity_cosine_True.eps} & \includegraphics[width=55mm]{images/CH4_baselines_jaccard_sim_30.eps} \\
+    % (a) first & (b) second & (c) third \\[6pt]
     
-    \bigskip
-    \includegraphics[width=\linewidth]{eps/20news_result.eps}
-    (в) коллекция 20 newsgroups, число тем $|T| = 25$
-
-    \caption{Графики зависимости трёх критериев качества тематических моделей (разреженности, средней различности тем по мере Жаккара, средней когерентности тем по PPMI) для пяти моделей (PLSA, LDA~со~сглаживанием, LDA~с~разреживанием, TARTM и~<<наивный>> TARTM) по трём текстовым коллекциям (NIPS, Twitter, 20~newsgroups). Модель TARTM быстрее сходится, а~по критериям различности и~когерентности тем либо превосходит остальные модели, либо сравнима с~ними.  
-    }
-    \label{fig:3x3charts}
+    \includegraphics[width=55mm]{images/CH4_baselines_diversity_euclidean_False.eps} &   \includegraphics[width=55mm]{images/CH4_baselines_diversity_euclidean_True.eps} & \includegraphics[width=55mm]{images/CH4_baselines_loglift30.eps} \\
+    % (a) first & (b) second & (c) third \\[6pt]
+    
+    
+    \includegraphics[width=55mm]{images/CH4_baselines_diversity_hellinger_False.eps} &   \includegraphics[width=55mm]{images/CH4_baselines_diversity_hellinger_True.eps} & \includegraphics[width=55mm]{images/CH4_baselines_SparsityPhiScore.eps} \\
+    % (a) first & (b) second & (c) third \\[6pt]
+    
+    
+    \includegraphics[width=55mm]{images/CH4_baselines_diversity_jensenshannon_False.eps} &   \includegraphics[width=55mm]{images/CH4_baselines_diversity_jensenshannon_True.eps} & \includegraphics[width=55mm]{images/CH4_baselines_SparsityThetaScore.eps} \\
+    % (a) first & (b) second & (c) third \\[6pt]
+    
+    %\includegraphics[width=65mm]{it} &   \includegraphics[width=65mm]{it} \\
+    %(c) third & (d) fourth \\[6pt]
+    
+    %\multicolumn{2}{c}{\includegraphics[width=65mm]{it} }\\
+    %\multicolumn{2}{c}{(e) fifth}
+\end{tabular}
+    \caption{Графики зависимости различных критериев качества тематических моделей для пяти моделей (TARTM, PLSA, LDA с 3 видами приоров). Каждой модели соответствуют три линии: среднее значение, минимум и максимум (по пяти случайным перезапускам).}
+\label{fig:ch4_base}
 \end{figure}
+
+
+\begin{figure}
+\begin{tabular}{ccc}
+    \includegraphics[width=55mm]{images/CH4_vs_regularized_diversity_cosine_False.eps} &   \includegraphics[width=55mm]{images/CH4_vs_regularized_diversity_cosine_True.eps} & \includegraphics[width=55mm]{images/CH4_vs_regularized_jaccard_sim_30.eps} \\
+    
+    \includegraphics[width=55mm]{images/CH4_vs_regularized_diversity_euclidean_False.eps} &   \includegraphics[width=55mm]{images/CH4_vs_regularized_diversity_euclidean_True.eps} & \includegraphics[width=55mm]{images/CH4_vs_regularized_loglift30.eps} \\
+ \includegraphics[width=55mm]{images/CH4_vs_regularized_diversity_hellinger_False.eps} &   \includegraphics[width=55mm]{images/CH4_vs_regularized_diversity_hellinger_True.eps} & \includegraphics[width=55mm]{images/CH4_vs_regularized_SparsityPhiScore.eps} \\    
+    \includegraphics[width=55mm]{images/CH4_vs_regularized_diversity_jensenshannon_False.eps} &   \includegraphics[width=55mm]{images/CH4_vs_regularized_diversity_jensenshannon_True.eps} & \includegraphics[width=55mm]{images/CH4_vs_regularized_SparsityThetaScore.eps} \\
+\end{tabular}
+    \caption{Графики зависимости различных критериев качества тематических моделей для пяти моделей (TARTM, PLSA, LDA с 3 видами приоров). Каждой модели соответствуют три линии: среднее значение, минимум и максимум (по пяти случайным перезапускам).}
+\label{fig:ch4_vs_reg}
+\end{figure}
+
+
+\begin{figure}
+\begin{tabular}{ccc}
+    \includegraphics[width=55mm]{images/CH4_improved_diversity_cosine_False.eps} &   \includegraphics[width=55mm]{images/CH4_improved_diversity_cosine_True.eps} & \includegraphics[width=55mm]{images/CH4_improved_jaccard_sim_30.eps} \\
+    
+    \includegraphics[width=55mm]{images/CH4_improved_diversity_euclidean_False.eps} &   \includegraphics[width=55mm]{images/CH4_improved_diversity_euclidean_True.eps} & \includegraphics[width=55mm]{images/CH4_improved_loglift30.eps} \\
+ \includegraphics[width=55mm]{images/CH4_improved_diversity_hellinger_False.eps} &   \includegraphics[width=55mm]{images/CH4_improved_diversity_hellinger_True.eps} & \includegraphics[width=55mm]{images/CH4_improved_SparsityPhiScore.eps} \\    
+    \includegraphics[width=55mm]{images/CH4_improved_diversity_jensenshannon_False.eps} &   \includegraphics[width=55mm]{images/CH4_improved_diversity_jensenshannon_True.eps} & \includegraphics[width=55mm]{images/CH4_improved_SparsityThetaScore.eps} \\
+\end{tabular}
+    \caption{Графики зависимости различных критериев качества тематических моделей для пяти моделей (TARTM, PLSA, LDA с 3 видами приоров). Каждой модели соответствуют три линии: среднее значение, минимум и максимум (по пяти случайным перезапускам).}
+\label{fig:ch4_improved}
+\end{figure}
+
+
+\begin{figure}
+\begin{tabular}{ccc}
+    \includegraphics[width=55mm]{images/CH4_baselines_PerplexityScore.eps} &   \includegraphics[width=55mm]{images/CH4_vs_regularized_PerplexityScore.eps} & \includegraphics[width=55mm]{images/CH4_improved_PerplexityScore.eps} \\
+    (a) first & (b) second & (c) third \\[6pt]
+\end{tabular}
+\label{fig:Perple3x}
+\end{figure}
+
+
 
 \textbf{Сравнение с PLSA/LDA}. На рисунке \ref{fig:ch4_base} видно, что предлагаемый псевдорегуляризатор позволяет строить модели, темы которых более уникальны, чем темы классических моделей (среднее расстояние между темами и среднее расстояние до ближайшей темы у TARTM больше, чем у других моделей; коэффициент подобия Жаккара, напротив, меньше). Также можно заметить, что введение певдорегуляризатора не слишком негативно сказалось на перплексии (конечная перплексия сравнима с перплексией \texttt{lda\_heuristic}). Мера качества LogLift показывает улучшение более чем в два раза.
 
@@ -367,8 +414,14 @@ L(\Phi, f(\Phi) ) + R(\Phi, f(\Phi) ) \to \max_{\Phi},
 % и проверить взаимодействие предложенной формулы с дополнительными регуляризаторами.
 % что позволяет дополнительно .
 
-\textbf{Сравнение по когерентности}.
+\textbf{Сравнение по когерентности}. У построенных моделей была несколькими способами измерена когерентность. 
 
+Поточечная взаимная информация (Pointwise Mutual Information, PMI) и положительная поточечная взаимная информация (Positive Pointwise Mutual Information, PPMI) расчитывались как $\log\frac{|D| N(w,v)}{N(w)N(v)}$. В этой формуле участвует $N(w,v)$~--- число документов, в~которых встречаются оба слова $w$~и~$v$,
+$N(w)$~--- число документов, содержащих слово~$w$ ($N(w,v)$ и $N(w)$ замерены по той же коллекции что и обучалась модель). Разница между PMI и PPMI состоит в том, что для последнего отрицательные значения логарифма заменяются на нули. Когерентность модели определяется как средние $\mathrm{PMI}(w,v)$ и $\mathrm{PPMI}(w,v)$ по~всем темам и всем парам верхних слов в~каждой теме.
+
+Для подсчёта UMass-когерентности использовался онлайн-сервис Palmetto. Palmetto позволяет оценивать когерентность множества слов при помощи статистики совстречаемости, собранной на английской Википедии. Когерентность множеств из 10 верхних слов каждой темы измерялась по отдельности. На основе полученной выборки из 20 (или 21) чисел были рассчитаны среднее, медиана, стандартное отклонение.
+
+Приведённые в таблице \ref{tab:theta_coh} результаты (все приведённые числа --- усреднения по пяти перезапускам) показывают, что TARTM превосходит остальные модели в терминах документной совстречаемости верхних слов; дополнительная регуляризация незначительно улучшает это далее. Отдельно стоит обсудить значения UMass-когерентности: как видно из сравнения среднего, медианы и стандартного отклонения, регуляризация ухудшает ``среднее'' качество тем, но усиливает разрыв между хорошими и плохими темами. Это можно объяснить тем, что TARTM имеет тенденцию выделять частые, но неинформативные слова в отдельную тему; Рис \ref{fig:2topics} демонстрирует это на примере двух сравнимых тем.
 
 \begin{figure}
 \begin{tabular}{lrrrrr}
@@ -382,110 +435,31 @@ thetaless             & -1.914 & 1.694 & 1.716 &        -1.709 &      0.831 \\
 thetaless\_regularized & -2.195 & 1.729 & 1.788 &        -1.826 &      1.220 \\
 \bottomrule
 \end{tabular}
-
-    \label{tab:coh}
+    \label{tab:theta_coh}
 \end{figure}
 
-
-% PMI верхних токенов (по множеству из 10 токенов). 
-% У построенных моделей была несколькими способами измерена когерентность, результаты приведены на \ref{tab:theta_coh} 
-% В связи с тем, что вычисление ког 
-
-На Рис. 3-5 изображены основные результаты экспериментов. Во-первых, они показывают, что  
-Во-вторых, модели TARTM демонстрируют наилучший результат по мере Жаккара (это можно объяснить тем, что TARTM и LDA по-разному обрабатывают  частые, но неинформативные слова; Рис. 1 демонстрирует это на примере трёх сравнимых тем).
+\begin{table}[t]
+    \caption{Примеры верхних слов в двух сравнимых темах.
+        Слова общей лексики выделены жирным шрифтом.
+        TARTM выделяет слова общей лексики в~отдельные темы, в~отличие от модели~PLSA.}
+    \label{fig:2topics}
+    \small
+    \begin{tabular}{ | p{7.5cm}| p{7.5cm} |}
+    \hline
+    TARTM &  PLSA
+    \\ \hline	
+game play team win player hit season lose fan league & \textbf{year} game \textbf{last} win play lose team hit player \textbf{guy}
+    \\ \hline
+\textbf{make} \textbf{point} \textbf{even} \textbf{case} \textbf{mean} \textbf{keep} \textbf{long} \textbf{actually} \textbf{consider} \textbf{every} & \textbf{make} \textbf{even} \textbf{may}  \textbf{case}  \textbf{consider}  fire  \textbf{less}  \textbf{mean}  \textbf{long}  force
+    \\ \hline
+    \end{tabular}
+\end{table}
 
 \subsection{Интуитивное объяснение особенностей TARTM}
 
-Основное объяснение полученных результатов следующее. PLSA и LDA предсказывают появление слов в документах как с помощью матрицы $\Phi$, так и с помощью матрицы $\Theta$, в то время как TARTM использует только матрицу $\Phi$. Это означает, что PLSA и LDA могут ``скорректироовать'' недостатки матрицы $\Phi$ за счёт правильного подбора матрицы $\Theta$, а TARTM может ``исправлять'' эти недостаки только меняя саму $\Phi$.
+Основное объяснение полученных результатов следующее. PLSA и LDA предсказывают появление слов в документах как с помощью матрицы $\Phi$, так и с помощью матрицы $\Theta$, в то время как TARTM использует только матрицу $\Phi$. Это означает, что PLSA и LDA могут ``скорректировать'' недостатки матрицы $\Phi$ за счёт правильного подбора матрицы $\Theta$, а TARTM может ``исправлять'' эти недостаки только меняя саму $\Phi$.
 
-Приведём простой пример, иллюстрирующий данные рассуждения. Допустим, коллекция состоит из 7 слов и 6 документов:
-\begin{verbatim}
-medicine and spices
-herbs and spices
-herbs and spices and chicken
-honey and spices
-medicine and herbs
-medicine and honey 
-\end{verbatim}
-
-Как могла бы выглядеть ``хорошая'' тематическая модель из 4 тем, построенная на этой коллекции? Неинформативное слово \texttt{"and"} может либо лежать в какой-то единственной ``фоновой'' теме ($\exists t_0: \phi_{wt_0} > 0, \phi_{w\ast} = 0$ для $w=$\texttt{"and"}), либо распределиться между несколькими ``информативными'' темами. Первый вариант кажется более естественным. Из 1000 запусков PLSA и TARTM с разными начальными приближениями PLSA ни разу не выделил \texttt{"and"} в отдельную тему, в то время как TARTM сделал это в 365 случаях. При этом матрица $\Theta$, полученная в TARTM содержала от 3 до 7 нулей, а в PLSA от 12 до 17. Это показывает как PLSA с помощью нулей в матрице $\Theta$ ``прячет'' недостатки, вызванные шумами в виде наличия \texttt{"and"} во всех темах.
-
-\section{Заключение}
-
-В данной работе была предложена модификация оптимизационной задачи в тематическом моделировании, которая уменьшает количество оптимизируемых параметров и повышает уникальность и когерентность получаемых тем. Предложенный алгоритм не увеличивает вычислительную сложность или количество необходимых обучающих примеров. Эксперименты на реальных данных показывают, что предложенный алгоритм действительно улучшает качество тем.
-
-Важным аспектом предлагаемого алгоритма является его совместимость с подходом ARTM, что позволяет включать произвольное количество дополнительных регуляризаторов, чтобы точно настроить решение поставленной задачи.
-
-Практически наиболее значимым улучшением подхода является расширение его на случай мультимодальных тематических моделей. При наличии сразу нескольких матриц $\Phi_1, \dots, \Phi_M$ вместо одной $\Phi $, непонятно, как правильно вывести значение $\Theta $. Самый простой способ --- положить $\Theta = f(\Phi_1) $, но он игнорирует значительную часть доступной информации. Дальнейшее исследование может найти более эффективный способ постановки оптимизационной задачи в данном случае.
-
-
-\clearpage
-\begin{figure*}[!h]
-\begin{center}
-    \begin{small}
-    \begin{tabular}{ | p{8.4cm}| p{8cm} |}
-    \hline
-    TARTM &  LDA \\ \hline
-    game team player play season hockey hit league fan baseball \textbf{last} run watch throw pitcher ball stat year sport score & game year team player get \textbf{last} \textbf{good} baseball win play \textbf{go} season hit fan \textbf{think} time \textbf{make} \textbf{well} \textbf{say} league \\ \hline
-    car bike buy engine sell speed drive price mile road ride owner dealer drive model driver motorcycle tire detector brake & car bike \textbf{get} engine buy new \textbf{also} drive mile \textbf{make} speed look tire \textbf{well} dealer brake wheel \textbf{go} \textbf{good} road \\ \hline
-    period st series vs playoff pt shot king canada ranger lead cup toronto play wing pittsburgh buffalo blue chicago round & period gm vs pt st chicago power pp april shot play buffalo pittsburgh islander flame series lead \textbf{first} scorer cup \\ \hline
-    \end{tabular}
-    \end{small}
-\caption{20newsgroups, примеры наиболее вероятных слов в темах. Слова общей лексики выделены жирным. TARTM убирает подобные слова из тем в отличие от LDA.}\end{center}
-\end{figure*}
-
-\begin{figure*}[!h]
-\begin{center}
-    \begin{small}
-    \begin{tabular}{ | p{2.8cm}| p{2.7cm} | p{2.5cm} | p{1.6cm} | p{1.5cm} | p{3.5cm} |}
-    \hline
-    Алгоритм & Разреженность & Средняя мера Жаккара & PPMI & LogLift & Среднее расстояние до ближайшей темы   \\ \hline
-    sparse LDA    & 0.896 & 0.044 & 1.570 & 0.503 & 0.587\\ \hline
-    smooth LDA    & 0     & 0.043 & 1.509 & 0.479 & 0.632\\ \hline
-    PLSA          & 0.869 & 0.050 & 1.517 & 0.459 & 0.586\\ \hline
-    ARTM + $Reg$  & 0.898 & 0.027 & 1.710 & 0.590 & 0.661 \\ \hline
-    TARTM         & 0.893 & 0.007 & 1.716 & 0.952 & 0.895 \\ \hline
-    TARTM + $Reg$ &\textbf{0.929} & \textbf{0.003} & \textbf{1.788} & \textbf{1.020} & \textbf{0.953} \\ \hline
-    \end{tabular}
-    \end{small}
-\caption{Результаты эксперимента в TopicNet.}\end{center}
-\end{figure*}
-
-\clearpage
-\todo{Здесь должны быть новые графики}
-
-% \begin{figure*}[!ht]
-% \centering
-  % \begin{tabular}{@{}cc@{}}
-    % \includegraphics[width=\linewidth]{nips_result.eps}
-  % \end{tabular}
-  % \caption{NIPS, $T = 50$}
-% \end{figure*}
-
-% \begin{figure*}[!ht]
-% \centering
-  % \begin{tabular}{@{}cc@{}}
-    % \includegraphics[width=\linewidth]{twitter_result.eps} 
-  % \end{tabular}
-  % \caption{Twitter, $T = 50$}
-% \end{figure*}
-
-% \begin{figure*}[!ht]
-% \centering
-  % \begin{tabular}{@{}cc@{}}
-    % \includegraphics[width=\linewidth]{20news_result.eps} 
-  % \end{tabular}
-  % \caption{20newsgroups, $T = 25$}
-% \end{figure*}
-
-
-\subsection{The intuition behind performance}
-The intuition behind TARTM performance is simple: while the PLSA model predicts observed word counts with the help of $\Theta$ matrix, TARTM model has no such luxury. That means that PLSA can ``hide'' the $\Phi$ imperfections with a carefully crafted $\Theta$ matrix, but TARTM has no choice bu to ``chisel away'' at these imperfections.
-
-% a dirty hack to force n_dw appear on the bottom of this page 
-\enlargethispage{1\baselineskip}
-
-We can demonstrate this by the following example. Suppose the corpus consists of three documents: \texttt{herbs and spices}, \texttt{spices and medicine}, \texttt{herbs and medicine}. Hence, the $n_{dw}$ matrix equals to
+Приведём простой пример, иллюстрирующий данные рассуждения. Допустим, коллекция состоит из 4 слов и 3 документов: \texttt{herbs and spices}, \texttt{spices and medicine}, \texttt{herbs and medicine}. Таким образом, матрица $n_{dw}$ равна
 
 \begin{center}
 \begin{tabular}{l|llll}
@@ -496,7 +470,7 @@ doc3       & 1   & 1     & 0      & 1
 \end{tabular}
 \end{center}
 
-We are looking for a topic model with four topics. The natural solution is to place each word in a separate topic (in other words, $\Phi = I$ and $\Theta = \frac{1}{3} n_{dw}$):
+Предположим, что мы хотим построить тематическую модель с четырьмя темами. Тематическая модель, наиболее простая из всех возможных, выделяет каждое слово в отдельную тему (иными словами, $\Phi = I$, а $\Theta = \frac{1}{3} n_{dw}$):
 \begin{minipage}[t]{0.25\textwidth}
 \[
 \Phi_{tw} = 
@@ -518,7 +492,7 @@ We are looking for a topic model with four topics. The natural solution is to pl
 \]
 \end{minipage}
 
-However, there's no guarantee that PLSA will infer these particular topics. Indeed, many initial approximations give solutions similar to the following:
+Проведённый численный эксперимент показал, что TARTM успешно восстанавливает описанное выше решение в 998 из 1000 случаев. Тем не менее, это решение не является единственным. Большинство найденных при помощи PLSA тематических моделей содержат коэффициенты, не кратные $\frac1{3}$. Ни один из 1000 случайных перезапусков PLSA не дал описанную выше естественную тематическую модель. В качестве примера приведём такую модель:
 \[
 \Phi_{tw} = 
 \begin{pmatrix}
@@ -536,5 +510,22 @@ However, there's no guarantee that PLSA will infer these particular topics. Inde
     0.348 & 0.652 & 0 & 0 \\
 \end{pmatrix}.
 \]
-Note that $\Phi \cdot \Theta \approx \frac{1}{3} n_{dw}$. As you can see, the inferred topics are a mixture of ``ideal'' ones, but $\Theta$ distribution masks these imperfections.\\
-On the contrary, such mixtures are suboptimal for TARTM model: without a way to fine-tune $\Theta$, such topics are unstable, high-perplexity solutions. Our numeric results corroborate this: TARTM obtained golden standard topics in 998 out of 1000 cases while PLSA failed in every one of 1000 cases.
+Несмотря на то, что матрица $\Phi$ не разделяет искомые ``идеальные'' темы и является зашумлённой, комбинация $\Phi$ и $\Theta$ адекватно описывает $n_{dw}$ (нетрудно убедиться, что $\Phi \cdot \Theta \approx \frac{1}{3} n_{dw}$).\\
+
+Недостатком этого примера является его искусственность: поскольку $|W|=|T|$, $|T|>|D|$, то задача матричного разложения допускает точное (а не приближённое) решение. Можно привести и более правдоподобный пример, демонстрирующий то же явление. Рассмотрим следующую коллекцию из 7 слов и 6 документов:
+\begin{verbatim}
+medicine and spices
+herbs and spices
+herbs and spices and chicken
+honey and spices
+medicine and herbs
+medicine and honey 
+\end{verbatim}
+
+Как могла бы выглядеть ``хорошая'' тематическая модель из 4 тем, построенная на этой коллекции? Неинформативное слово \texttt{"and"} может либо лежать в какой-то единственной ``фоновой'' теме ($\exists t_0: \phi_{wt_0} > 0, \phi_{w\ast} = 0$ для $w=$\texttt{"and"}), либо распределиться между несколькими ``информативными'' темами. Первый вариант кажется более естественным. Из 1000 запусков PLSA и TARTM с разными начальными приближениями PLSA ни разу не выделил \texttt{"and"} в отдельную тему, в то время как TARTM сделал это в 365 случаях. При этом матрица $\Theta$, полученная в TARTM содержала от 3 до 7 нулей, а в PLSA от 12 до 17. Это показывает как PLSA с помощью нулей в матрице $\Theta$ ``прячет'' недостатки, вызванные шумами в виде наличия \texttt{"and"} во всех темах.
+
+\section{Заключение}
+
+В данной работе была предложена модификация оптимизационной задачи в тематическом моделировании, которая уменьшает количество оптимизируемых параметров и повышает уникальность и когерентность получаемых тем. Предложенный алгоритм не увеличивает вычислительную сложность или количество необходимых обучающих примеров. Эксперименты на реальных данных показывают, что предложенный алгоритм действительно улучшает качество тем.
+
+Важным аспектом предлагаемого алгоритма является его совместимость с подходом ARTM, что позволяет включать произвольное количество дополнительных регуляризаторов, чтобы точно настроить решение поставленной задачи.

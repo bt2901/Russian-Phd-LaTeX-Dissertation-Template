@@ -332,6 +332,11 @@
 \definecolor{my-red}{RGB}{176, 0, 0}
 \definecolor{my-pink}{RGB}{253, 123, 124}
 
+\definecolor{my-blue}{RGB}{18, 10, 143}
+\colorlet{my-blue-light}{my-blue!30!}
+
+
+
 \newcommand\dscl[1]{\textbf{\textcolor{blue}{Оговорка: #1}}}
 
 
@@ -376,3 +381,20 @@
 \newsavebox{\algbox} % http://tex.stackexchange.com/questions/356427/add-equation-number-beside-algorithm/356458
 
 \newcommand{\cond}{\mspace{2mu}{|}\mspace{2mu}}
+
+
+
+%\newenvironment{psmallmatrix}
+%  {\left(\begin{smallmatrix}}
+%  {\end{smallmatrix}\right)}
+
+\newcolumntype{Y}{>{\centering\arraybackslash}X}
+
+  
+\newcommand{\topicvector}[3]{
+    \begin{pmatrix}\\ \fcolorbox{black}{#1}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \fcolorbox{black}{#2}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \fcolorbox{black}{#3}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \end{pmatrix}
+}
+
+\newcommand{\smalltopicvector}[3]{
+    \begin{psmallmatrix}\\ \fcolorbox{black}{#1}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \fcolorbox{black}{#2}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \fcolorbox{black}{#3}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \end{psmallmatrix}
+}

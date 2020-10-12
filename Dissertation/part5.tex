@@ -1,37 +1,12 @@
 \chapter{Библиотека TopicNet и её применение в конкретных задачах}
 
-\subsection{механизм отбора моделей в TopicNet}
-\subsection{multitask learning}
-\subsection{рецепты}
-“мы подготовили рецепт: мы берём комбинацию регуляризаторов и оно почти всегда работает хорошо из коробки”
 
+% “мы подготовили рецепт: мы берём комбинацию регуляризаторов и оно почти всегда работает хорошо из коробки”
+Данный раздел будет посвящён библиотеке TopicNet. TopicNet -- открытая надстройка над библиотекой BigARTM, предоставляющая более удобные возможности  для подбора гиперпараметров, для работы с пользовательскими регуляризаторами и для визуализации тематических моделей \cite{bulatov2020topicnet}. 
 
-\section{Introduction}
+Описанная библиотека доступна онлайн на GitHub\footnote{Source code can be downloaded from \url{github.com/machine-intelligence-laboratory/TopicNet}}, также опубликована её документация \footnote{\url{machine-intelligence-laboratory.github.io/TopicNet} }.
 
-To facilitate the research on mining latent topics from texts and text-like collections, we present a novel software package called TopicNet\footnote{Source code can be downloaded from \url{github.com/machine-intelligence-laboratory/TopicNet} \par The documentation is available at \\ \url{machine-intelligence-laboratory.github.io/TopicNet} }. This software package contributes to the flexibility of topic model design and provides powerful out-of-the-box experience boosting the accessibility of topic modelling for the general audience.
-
-\section{Related Work}
-
-Existing topic modelling algorithms originate from latent semantic analysis approach~--- LSA \cite{deerwester1990indexing}, which is, in the essence, a singular value decomposition with the lowest possible rank for document$\times$term matrix. Later, a probabilistic approach took the main place in the topic modelling field.
-
-A probabilistic topical model can be considered as a black box that receives a text document collection at the input and produces two families of distributions at the output: the term probabilities for each topics $\phi_{wt} = p(w \mid t)$ and the topic probabilities for each document $\theta_{td} = p(t \mid d)$. The term$\times$topic matrix $\Phi$ and topic$\times$document matrix $\Theta$ are model parameters to be found during the training.
-
-The development of probabilistic topic modelling started with two fundamental models: probabilistic Latent Semantic Analysis~--- pLSA \cite{hofmann1999probabilistic} and Latent Dirichlet Allocation~--- LDA \cite{blei2003latent}. LDA adds Dirichlet prior to pLSA: the generative LDA model draws term-topic and topic-document distributions from prior Dirichlet distributions, each with its own concentration parameter. While writing a document, authors usually use only handful of topics per each text. This sparsity property is reflected in concentration parameter. Varying value of this parameter, one can obtain distributions where only a few topics have high probability to be in a document with other topic probabilities being small. Thus, the sparsity of Dirichlet distributions is the probabilistic tool that encodes this intuition. However, according to the article \cite{wallach2009rethinking}, LDA requires extensive hyperparameter optimization toward producing good results.
-
-На протяжении последних десятилетий были разработаны сотни расширений моделей PLSA и LDA, 
-
-Over the past years, hundreds of pLSA and LDA model extensions have emerged, each taking into account the various problem-specific data features and providing  desired solution properties. Starting with LDA model, Bayesian learning is the de facto standard in topic modelling. In this approach, one first describes the probabilistic generative model of data,
-
-specifies prior distributions of the model parameters,
-
-and then uses Bayesian inference to obtain the parameter posterior distributions. Bayesian inference method requires unique derivation and, consequently, unique implementation for each new model. 
-
-% ### CHANGE ###
-
-Аддитивная регуляризация тематических моделей (АРТМ, ARTM) \cite{voron14dan-eng,kochedykov2017fast} --- небайесов многокритериальный подход. 
-
-Основанный на максимизации правдоподобия, сложенного с взвешенной суммы произвольных функций (регуляризаторов). Многие байесовы модели могут быть проинтерпретированны как модель PLSA, подвергнутая какой-либо регуляризации. За счёт аддиктивности подход АРТМ позволяет комбинировать множество регуляризаторов внутри одной тематической модели. Эта модулярная технология реализована внутри откртой библиотеки BigARTM \footnote{\url{bigartm.org}} 
-\cite{voron15aist}. 
+\section{Сравнимые проекты}
 
 Given a generative model and data, inference must be executed for extracting probabilistic topic-depending distributions. There are many inference algorithms: expectation-maximization (EM) algorithm, Gibbs sampling, variational inference, gradient descent and message passing. In ARTM the regularized EM-algorithm is used to learn model parameters. The similarities between each of the algorithms were noted before in \cite{asuncion09smoothing}. 
 
@@ -267,6 +242,46 @@ STTM WNTM  & 0.01997                                                            
 \label{topics_distribution}
 \end{figure}
 
+\subsection{Использование псевдорегуляризатора быстрой векторизации}
+короче thetaless + фоновые темы с дефолтными параметрами + decorrelation бьёт генсимовский ЛДА и просто фоновую декорреляцию по лифту, когерентности на внешнем корпусе, различности тем
+
+хотя почему-то проигрывает просто фоновой декорреляции по ppmi (в pmi лучше)
+
+это на 20NG
+
+в LREC-овской статье мы при помощи фоновой декорреляции смогли побить ЛДА по различности тем, но проиграли по когерентности на внешнем корпусе
+
+если смотреть темы глазами, то какой-то драматичной разницы не видно, правда
+
+я добавил в наш бэзлайн-рецепт теталесс, теперь мы походу лучше чем генсим
+
+% Murat_baseline              558.876094
+% thetaless_moderate          639.605590
+% thetaless_decorrelated      692.431927
+% LDA_asymmetric_symmetric    427.766280
+% LDA_asymmetric_auto         486.436350
+% LDA_symmetric_symmetric     471.093659
+% LDA_symmetric_auto          434.773598
+% LDA_auto_symmetric          483.084714
+% LDA_auto_auto               509.173805
+Это одна метрика качества (lift), чем больше тем лучше
+АРТМ в целом бьёт LDA, а теталесс улучшает отрыв ещё дальше
+
+
+% Murat_baseline             -64.437383
+% thetaless_moderate         -48.483618
+% thetaless_decorrelated     -37.959291
+% LDA_asymmetric_symmetric   -48.924522
+% LDA_asymmetric_auto        -61.571316
+% LDA_symmetric_symmetric    -57.684924
+% LDA_symmetric_auto         -45.582575
+% LDA_auto_symmetric         -47.643180
+% LDA_auto_auto              -54.981008
+а это когерентности
+теталесс позволяет победить ЛДА из генсима (а раньше не получалось)
+
+
+
 %СРАВНИТЬ: 
 
 %\begin{enumerate}
@@ -277,6 +292,46 @@ STTM WNTM  & 0.01997                                                            
 %    \item RAM / CPU usage
 %    \item Time
 % \end{enumerate} 
+
+\subsection{механизм отбора моделей в TopicNet}
+
+
+\section{Адаптивная траектория регуляризации}
+
+Адаптивная траектория регуляризации --- мощная техника, находящая себе множество практических применений. Её идея состоит в том, чтобы заменять постоянный коэффициент регуляризации $\tau$ на функцию, зависящую от номера итерации обучения $\tau_i$ (и, возможно, от каких-то характеристик модели). Последовательность $\tau_i$, рассмотренных в процессе обучения, называется \textit{траекторией регуляризации}.
+
+Самый распространённый вариант этой техники --- последовательное включение в модель новых регуляризаторов (может быть вместе с отключением старых регуляризаторов). Последовательное применение куба \texttt{RegularizerModifierCube}, включающих и выключающих определённый регуляризатор, позволяет удобным образом реализовать эту технику внутри TopicNet.
+
+Однако существует и более продвинутый вариант этой техники:
+
+<<
+
+>>
+
+используемая на практике
+
+не имеющая прямых аналогов в байесовом выводе
+
+% есть alpha_iter но не всегда достаточно гибкости
+
+\subsection{Обзор}
+
+
+В работе \cite{plavin}
+
+
+\cite{ianina2019regularized}
+\cite{popov_hier}
+
+* семейство моделей "декорреляция N итераций, дообучение без регуляризаторов 50-N итераций"
+* семейство моделей "каждую итерацию увеличиваем коэффициент регуляризации в N раз"
+* семейство моделей "включаем разреживание, как только скор такой-то стал меньше N"
+
+скорее коэффициент регуляризации откатывается к предыдущему значению, а модель уж как получилось.
+это такой damage control, который пытается сделать так, чтобы модель находилась в опасной зоне не больше одной итерации
+
+
+
 
 
 \section{Заключение}
