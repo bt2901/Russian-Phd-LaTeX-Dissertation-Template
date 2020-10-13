@@ -310,10 +310,6 @@
 \renewcommand{\psi}{\uppsi}
 \renewcommand{\omega}{\upomega}
 
-
-
-
-
 % https://tex.stackexchange.com/questions/151984/double-vertical-bar-notation
 \usepackage{mathtools}
 
@@ -322,12 +318,11 @@
 }
 \newcommand{\infdiv}{\infdivx}
 %\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
-\newcommand{\norm}{\mathop{\mathsf{norm}}\limits}
+\newcommand{\norm}{\mathop{\mathrm{norm}}\limits}
 
 % перенос формул в тексте
 \newcommand*{\hm}[1]{#1\nobreak\discretionary {}%
 {\hbox{$\mathsurround=0pt #1$}}{}}
-
 
 \definecolor{my-red}{RGB}{176, 0, 0}
 \definecolor{my-pink}{RGB}{253, 123, 124}
@@ -335,10 +330,7 @@
 \definecolor{my-blue}{RGB}{18, 10, 143}
 \colorlet{my-blue-light}{my-blue!30!}
 
-
-
 \newcommand\dscl[1]{\textbf{\textcolor{blue}{Оговорка: #1}}}
-
 
 \newcommand{\bsym}{\boldsymbol}
 \DeclareMathOperator{\Coh}{Coh}
