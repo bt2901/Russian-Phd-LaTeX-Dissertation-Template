@@ -382,6 +382,9 @@
 
 \newcolumntype{Y}{>{\centering\arraybackslash}X}
 
+\usepackage{ragged2e}  % for '\RaggedRight' macro (allows hyphenation)
+\newcolumntype{Z}{>{\RaggedRight\arraybackslash}X} 
+
   
 \newcommand{\topicvector}[3]{
     \begin{pmatrix}\\ \fcolorbox{black}{#1}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \fcolorbox{black}{#2}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \fcolorbox{black}{#3}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \end{pmatrix}
@@ -389,4 +392,25 @@
 
 \newcommand{\smalltopicvector}[3]{
     \begin{psmallmatrix}\\ \fcolorbox{black}{#1}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \fcolorbox{black}{#2}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \fcolorbox{black}{#3}{\rule{0pt}{6pt}\rule{6pt}{0pt}} \\\\ \end{psmallmatrix}
+}
+
+\usepackage{listings}
+
+\lstset{
+  %basicstyle=\itshape,
+  %basicstyle=\ttfamily\color{black},
+  basicstyle=\rmfamily\color{black},
+  xleftmargin=3em,
+  literate={->}{$\rightarrow$}{2}
+           {<}{$\langle$}{1}
+           {>}{$\rangle$}{1}
+           {to}{{\textbf{{\color{red}\textemdash$>$}}}}{2}
+           {less}{{{\color{red}$<$}}}{1}
+           {great}{{{\color{red}$>$}}}{1}
+           {eq}{{{\color{red}$=$}}}{1}
+           {model}{{{\color{red}\texttt{model.}}}}{6}
+           {MAX}{{{\color{red}\texttt{MAX}}}}{3}
+           {MIN}{{{\color{red}\texttt{MIN}}}}{3}
+           {AND}{{{\color{red}\texttt{AND}}}}{3}
+           {COLLECT}{{{\color{red}\texttt{COLLECT}}}}{7}
 }
