@@ -153,9 +153,7 @@ L(\Phi^m, \Theta) = \sum_m \tau_m \sum_{d\in D} \sum_{w \in W^m} n_{dw} \ln p(w 
 
 где коэффициенты $\tau_m$ показывают \textit{вес} модальности $m$.
 
-Известно, что $EM$-алгоритм для мультимодальной тематической модели структурно похож на классический $EM$-алгоритм \cite{yanina}\cite{vorontsov2015non}\cite{bulatov}.
-
-Формулу \ref{modal_likelihood} можно проинтерпретировать как введение $M-1$ дополнительного регуляризатора с коэффициентами $\tau_m$ \cite{yanina}:
+Известно, что $EM$-алгоритм для мультимодальной тематической модели структурно похож на классический $EM$-алгоритм \cite{voron15nonbayesian}. Формулу \ref{modal_likelihood} можно проинтерпретировать как введение $M-1$ дополнительного регуляризатора с коэффициентами $\tau_m$ \cite{voron15nonbayesian}:
 
 \[
 \tau_m R(\Phi, \Theta)_m = \tau_m L^{(m)}(\Phi, \Theta) = \tau_m  \sum_d \sum_w n_{dw}^{(m)} \ln \sum_t \phi_{wt}^{(m)}\theta_{td} =
