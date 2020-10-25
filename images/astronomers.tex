@@ -1,10 +1,10 @@
 
  
-  \begin{figure}[h]
+  \begin{figure}[ht]
   \small
   \begin{subfigure}[t]{0.39\textwidth}
-    $\mbox{A}\ \mbox{group}\ \mbox{of}\ \textcolor{my-red}{astronomers}\ \mbox{managed}$\\
-    $\mbox{to}\ \textcolor{my-pink}{detect} \mbox{a}\ \mbox{\textcolor{my-red}{star}},\ \mbox{\textcolor{my-pink}{orbiting}}$\\ $\mbox{\textcolor{my-pink}{around}}\ \mbox{the}\ \mbox{\textcolor{my-red}{black}}\ \mbox{\textcolor{my-red}{hole}}\ \mbox{at}$\\
+    $\mbox{A}\ \mbox{group}\ \mbox{of}\ \mbox{\textcolor{my-red}{astronomers}}\ \mbox{managed}$\\
+    $\mbox{to}\ \mbox{\textcolor{my-pink}{detect}} \mbox{a}\ \mbox{\textcolor{my-red}{star}},\ \mbox{\textcolor{my-pink}{orbiting}}$\\ $\mbox{\textcolor{my-pink}{around}}\ \mbox{the}\ \mbox{\textcolor{my-red}{black}}\ \mbox{\textcolor{my-red}{hole}}\ \mbox{at}$\\
     $\mbox{a}\ \mbox{very}\ \mbox{close}\ \mbox{\textcolor{my-pink}{distance}}.$
   \end{subfigure}
   ~
@@ -24,15 +24,7 @@
       \mbox{\textcolor{my-pink}{distance}}, \mbox{\textcolor{my-pink}{detect}},
       \mbox{\textcolor{my-pink}{massive}}, \ldots\}
   \]
-  
-  \caption{
-      An example illustrating why top-tokens based coherences may act badly in some cases.
-      In the two presented pieces of text words related to the topic "Black Holes" are coloured (red~---~strongly related to the topic, pink~---~partially related).
-      Text on the left is "good", it is actually about black holes.
-      On the other hand, right text is nonsense.
-      However, these texts are organized in a way to leave the top tokens of the topic "Black Holes" (red words) on nearly the same places in the text, i.e. if some of these tokens appeared in one words window on the left, so as on the right.
-      Top-tokens based coherences would feel no difference.
-      New intra-text measures should sense that something is "wrong" with text on the right, it is not connected with the topic.
-  }
+\captionsetup{justification=raggedright,singlelinecheck=false,format=hang}  
+\caption{Пример, иллюстрирующий, почему в некоторых случаях меры когерентности, основанные на верхних токенах, могут действовать плохо. Представлены два фрагмента текста. Связанные с темой <<Черные дыры>> слова выделены цветом (красный~---~ сильно связан с темой, розовый~---~ частично связан). Оба фрагмента содержат верхние слова темы примерно на одних и тех же местах в тексте; промежутки между ними заполнены либо слаботематичными словами (левый фрагмент), либо словами, относящимисся к другой теме (правый фрагмент).\\ Когерентности, основанные на верхних токенах, <<считают>> что оба фрагмента~--- когерентные темы, хорошо описывающие данную коллекцию. Предлагаемые внутритекстовые меры качества учитывают поведение тем внутри всех слов, и поэтому имеют возможность определить правый фрагмент как имеющий более низкое качество.  }
   \label{plot:ideal-tm}
 \end{figure}
