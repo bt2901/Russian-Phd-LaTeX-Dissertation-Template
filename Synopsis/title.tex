@@ -39,9 +39,11 @@
 \newpage
 % оборотная сторона обложки
 \thispagestyle{empty}
-\noindent Работа выполнена в {\thesisInOrganization}.
+{\centering
+\noindent Работа прошла апробацию на {\thesisInOrganization}.
+\par}
 
-\vspace{0.008\paperheight plus1fill}
+\vspace{0.008\paperheight}
 \noindent%
 \begin{tabularx}{\textwidth}{@{}lX@{}}
     \ifdefined\supervisorTwoFio
@@ -69,27 +71,7 @@
                               \fi
                               \vspace{0.013\paperheight}\\
     \fi
-    Официальные оппоненты:  &
-    \ifnumequal{\value{showopplead}}{0}{\vspace{13\onelineskip plus1fill}}{%
-        \textbf{\opponentOneFio,}\par
-        \opponentOneRegalia,\par
-        \opponentOneJobPlace,\par
-        \opponentOneJobPost\par
-        \vspace{0.01\paperheight}
-        \textbf{\opponentTwoFio,}\par
-        \opponentTwoRegalia,\par
-        \opponentTwoJobPlace,\par
-        \opponentTwoJobPost
-    \ifdefined\opponentThreeFio
-        \par
-        \vspace{0.01\paperheight}
-        \textbf{\opponentThreeFio,}\par
-        \opponentThreeRegalia,\par
-        \opponentThreeJobPlace,\par
-        \opponentThreeJobPost
-    \fi
-    }%
-    \vspace{0.013\paperheight} \\
+    \vspace{0.013\paperheight} 
     \ifdefined\leadingOrganizationTitle
     Ведущая организация:    &
     \ifnumequal{\value{showopplead}}{0}{\vspace{6\onelineskip plus1fill}}{%
@@ -99,34 +81,14 @@
 \end{tabularx}
 \vspace{0.008\paperheight plus1fill}
 
-\noindent Защита состоится \defenseDate~на~заседании диссертационного совета \defenseCouncilNumber~при \defenseCouncilTitle~по адресу: \defenseCouncilAddress.
+
+\noindent Защита состоится \defenseDate~на~заседании диссертационного совета \defenseCouncilNumber~по адресу: \defenseCouncilAddress. \\
+\\
+\noindent С диссертацией можно ознакомиться  в библиотеке и на сайте Московского физико-технического института (национального исследовательского университета) \url{https://mipt.ru/education/post-graduate/ soiskateli-tekhnicheskie-nauki.php}.
+
 
 \vspace{0.008\paperheight plus1fill}
-\noindent С диссертацией можно ознакомиться в библиотеке \synopsisLibrary.
 
-\vspace{0.008\paperheight plus1fill}
-\noindent Отзывы на автореферат в двух экземплярах, заверенные печатью учреждения, просьба направлять по адресу: \defenseCouncilAddress, ученому секретарю диссертационного совета~\defenseCouncilNumber.
+\noindent Работа представлена <<15>> октября 2020~г. в~Аттестационную комиссию федерального государственного автономного образовательного учреждения высшего образования <<Московский физико-технический институт (национальный исследовательский университет)>> для рассмотрения советом по защите диссертаций на соискание ученой степени кандидата наук, доктора наук в соответствии с~п.3.1 ст.~4 Федерального закона <<О
+науке и государственной научно-технической политике>>.
 
-\vspace{0.008\paperheight plus1fill}
-\noindent{Автореферат разослан \synopsisDate.}
-
-\noindent Телефон для справок: \defenseCouncilPhone.
-
-\vspace{0.008\paperheight plus1fill}
-\noindent%
-\begin{tabularx}{\textwidth}{@{}%
->{\raggedright\arraybackslash}b{18em}@{}
->{\centering\arraybackslash}X
-r
-@{}}
-    Ученый секретарь\par
-    диссертационного совета\par
-    \defenseCouncilNumber,\par
-    \defenseSecretaryRegalia
-    &
-    \ifnumequal{\value{showsecrsign}}{0}{}{%
-        \includegraphics[width=2cm]{secretary-signature.png}%
-    }%
-    &
-    \defenseSecretaryFio
-\end{tabularx}
