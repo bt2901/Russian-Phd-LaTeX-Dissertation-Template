@@ -1,305 +1,495 @@
-\section{Списки}
-\begin{frame}[plain, noframenumbering]
-    \begin{center}
-        \Huge
-        Списки
-    \end{center}
+\begin{frame}[t]{Задача тематического моделирования}
+\textbf{Дано:}
+\begin{itemize}
+    \item $D$ --- коллекция текстовых документов
+    \item $W$ --- множество уникальных термов коллекции
+    \item $n_{dw}$ --- число вхождений слова $w$ в <<мешок слов>> документа $d$
+\end{itemize}
+
+\medskip
+\textbf{Найти:}
+множество тем $T$ и два семейства распределений:
+\smallskip
+\begin{itemize}
+    \item $p(w \cond t)$ --- распределения термов в темах
+    \item $p(t \cond d)$ --- распределения тем в документах
+\end{itemize}
+
+\[
+p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt}\theta_{td}
+\]
+
+\smallskip
+\textbf{Критерий:} максимум правдоподобия с регуляризаторами $\tau_i R_i$:
+\[
+    \sum_{d \in D} \sum_{w \in d} n_{dw} \mathrm{ln} \sum_{t \in T} \phi_{wt} \theta_{td} + R(\Phi, \Theta) \rightarrow \underset{\Phi, \Theta}{\mathrm{max}}, \quad R(\Phi, \Theta) = \sum_{i} \tau_i R_i(\Phi, \Theta)
+\]
+\[
+\phi_{wt} \ge 0; \quad \sum_{w \in W} \phi_{wt} = 1; \quad \theta_{td} \ge 0; \quad \sum_{d \in D} \theta_{td} = 1.
+\]
+\bigskip
+
+\footnotetext{
+Воронцов К. В. Аддитивная регуляризация тематических моделей коллекций текстовых документов // Доклады РАН. 2014.}
 \end{frame}
 
-\subsection{Нумерованные}
-
-\begin{frame}
-    \frametitle{Нумерованные списки}
-    \begin{enumerate}
-        \item один
-        \item два
-        \item три
-    \end{enumerate}
+\begin{frame}{Гиперпараметры тематических моделей}
+\begin{itemize}
+    \item У большинства тематических моделей: число тем $T$
+    \item У LDA: $\alpha$, $\eta$
+    \item В ARTM: коэффициенты регуляризации
+\end{itemize}
 \end{frame}
-\note{
-    Этот текст будет виден только если его отображение включено
-    в~файле \textbf{Presentation/setup}.
-    Для раздельного вывода презентации и заметок на~разные экраны (как
-    в~impress или powerpoint) можно использовать программу
-    \textit{pdf-presenter-console}.
-}
-
-\subsection{Не нумерованные}
 
 
-\begin{frame}
-    \frametitle{Перечисления}
+\begin{frame}[t]{Настройка гиперпараметров тематических моделей}
+% \medskip
+С какими проблемами сталкиваются пользователи тематических моделей?
+\begin{enumerate}
+    \item Неинтерпретируемые или плохо интерпретируемые темы
+    \item Дублирующие темы
+    \item Мусорные темы
+    \item Вводящие в заблуждение темы
+    \item Неустойчивость
+\end{enumerate}
+В теории настройка гиперпараметров может устранить проблемы 2, 3, 5. Если существовали бы процедуры измерения интерпретируемости и регламент валидации, то настройка гиперпараметров могла бы помочь и с проблемами 1, 4.
+\end{frame}
+
+\begin{frame}{Настройка гиперпараметров тематических моделей}
+Проблема: никто не умеет подбирать гиперпараметры. Обзор 167 статей \cite{chen2016survey}: 45\% работ не указывает использованное значение $T$ вовсе, 33\% приводит его без разъяснений о том, как оно было выбрано.
+\fixme{привести числа или сделать pie chart}
+\bigskip
+
+Проблема: непонятно, как измерять интерпретируемость. Когерентность плохо взаимодействует со стоп-словами. Попытки определить плохие темы через расстояние до известных <<мусорных>> тем или через низкие значения когерентности дают лишь срез проблематичных тем и имеют ограниченную область применимости
+
+\end{frame}
+
+% \begin{frame}[t]{Доступность тематических моделей}
+
+% Таким образом, принятые методологии перекладывают ответственность за подбор гиперпараметров на исследователя; при этом процедура подбора остаётся нерегламентированной, что создаёт высокий барьер входа для неспециалистов. 
+
+% В~обзорной монографии \cite{fntir2017applications} подчёркивается важность снижения порога входа и более жёсткой регламентации процесса моделирования: <<первоочередная исследовательская задача в тематическом моделировании... сделать его более доступным>>.
+
+% \end{frame}
+
+
+\begin{frame}[t]{Цель и задачи диссертационного исследования}
+\textbf{Цель:} разработка технологии построения интерпретируемых  тематических моделей, применимых для решения широкого класса задач тематического моделирования.
+
+\bigskip
+\textbf{Задачи:}
+\begin{enumerate}
+    \smallskip\item Автоматические критерии интерпретируемости: реализация, эмпирическое исследование, улучшение; новый критерий внутритекстовой когерентности.
+
+    \smallskip\item Разработка методологии и средств автоматизации проведения экспериментов по подбору стратегии регуляризации и выбору гиперпараметров тематической модели.
+
+    \smallskip\item Проектирование архитектуры библиотеки TopicNet; пользовательские регуляризаторы и метрики качества в TopicNet.
+
+    \smallskip\item Поиск универсального <<рецепта>> построения тематических моделей, превосходящих LDA по ряду критериев качества.
+
+    \smallskip\item Решение прикладных задач с использованием разработанной библиотеки TopicNet.
+
+\end{enumerate}
+\end{frame}
+
+
+\begin{frame}{Верхние токены}
+
+
+\begin{enumerate}
+    \item Для каждой темы выбирается какой-то небольшой набор характеризующих её токенов (как правило, это 10 верхних токенов).
+    \item{Этот набор анализируется одним из двух способов:
     \begin{itemize}
-        \item Проблема 1
-        \item Проблема 2
-        \item Проблема 3
+        \item качество тем оценивается экспертом визуально по этим токенам;
+        \item качество тем оценивается путём автоматического вычисления определённых статистик, в частности, парной сочетаемости верхних токенов в текстовой коллекции.
     \end{itemize}
-\end{frame}
-\note[itemize]{
-    \item Тезис 1
-    \item Тезис 2
-    \item Тезис 3
-}
-
-\subsection{Комбинированные}
-
-\begin{frame}
-    \frametitle{Комбинация списков}
-    \begin{enumerate}
-        \item \textbf{Задача 1}
-              \begin{itemize}
-                  \item Подзадача 1-1
-                  \item Подзадача 1-2
-              \end{itemize}
-        \item \textbf{Задача 2}
-              \begin{itemize}
-                  \item Подзадача 2-1
-                  \item Подзадача 2-2
-                  \item Подзадача 2-3
-              \end{itemize}
-        \item \textbf{Задача 3}
-              \begin{itemize}
-                  \item Подзадача 3-1
-                  \item Подзадача 3-2
-                  \item Подзадача 3-3
-              \end{itemize}
-    \end{enumerate}
-\end{frame}
-\note[itemize]{
-    \item Задача 1
-    \item Задача 2
-    \item Задача 3
-}
-
-\begin{frame}[allowframebreaks]
-    \frametitle{Разделение слайда}
-    Поясняющий текст
-    \begin{itemize}
-        \item Один
-        \item Два
-        \item Три
-    \end{itemize}
-    \framebreak
-    Продолжение предыдущего слайда
-\end{frame}
-
-\section{Графика}
-\begin{frame}[plain, noframenumbering]
-    \begin{center}
-        \Huge
-        Графика
-    \end{center}
-\end{frame}
-
-
-\begin{frame}
-    \frametitle{Одиночное изображение}
-    \centering
-    \includegraphics[width=0.8\linewidth]{latex} % окружение figure не требуется
-\end{frame}
-
-\begin{frame}
-    \frametitle{Векторная графика}
-    \begin{figure}
-	    \centering
-	    \ifdefmacro{\tikzsetnextfilename}{\tikzsetnextfilename{tikz_presentation}}{}% присваиваемое предкомпилированному pdf имя файла (не обязательно)
-	    \input{Presentation/images/tikz_plot.tikz}
-    \end{figure}
-\end{frame}
-
-\subsection{Расположение}
-
-\begin{frame}
-    \frametitle{Изображения по-вертикали}
-    \centering
-    \vfill
-    \includegraphics[width=0.8\linewidth,height=0.1\textheight]{latex} \\
-    \TeX
-    \vfill
-    \includegraphics[width=0.8\linewidth,height=0.2\textheight]{latex} \\
-    \LaTeX
-    \vfill
-    \includegraphics[scale=0.2]{latex} \\
-    \vfill
-\end{frame}
-
-
-\begin{frame}
-    \frametitle{Изображения по-горизонтали}
-    \begin{minipage}[t]{0.47\linewidth}
-        \textbf{Составная \\ подпись 1}
-        \center{\includegraphics[width=1\linewidth]{knuth1}}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[t]{0.47\linewidth}
-        \textbf{Составная \\ подпись 2}
-        \center{\includegraphics[width=1\linewidth]{knuth2}}
-    \end{minipage}
-\end{frame}
-
-\subsection{Линии}
-
-\begin{frame}
-    \frametitle{Разделяющие линии}
-    \begin{minipage}[c]{0.47\linewidth}
-        \center{\includegraphics[width=1\linewidth]{latex}}
-        \bigskip
-        \hrule{}
-        \bigskip
-        \textbf{Составная \\ подпись 1}
-    \end{minipage}
-    \hfill
-    \vrule{}
-    \hfill
-    \begin{minipage}[c]{0.47\linewidth}
-        \flushright
-        \textbf{Составная \\ подпись 2}
-        \center{\includegraphics[width=1\linewidth]{knuth2}}
-    \end{minipage}
-\end{frame}
-
-\section{Остальное}
-\begin{frame}[plain, noframenumbering]
-    \begin{center}
-        \Huge
-        Остальное
-    \end{center}
-\end{frame}
-
-\subsection{Формулы}
-
-\begin{frame}
-    \frametitle{Формулы}
-    \[
-    \left\{
-    \begin{array}{rl}
-        \dot x = & \sigma (y-x)  \\
-        \dot y = & x (r - z) - y \\
-        \dot z = & xy - bz
-    \end{array}
-    \right.
-    \]
-\end{frame}
-
-\begin{frame}
-    \frametitle{amsmath}
-    \centering
-    \begin{minipage}[t]{0.5\linewidth}
-        \begin{multline*}
-            y = 1 x^1 + 2 x^2 + 3 x^3 + \\ + 4 x^4 + 5 x^5 + \dots
-        \end{multline*}
-    \end{minipage}
-\end{frame}
-
-\begin{frame}[allowframebreaks]
-    \frametitle{Уравнения Максвелла}
-    \centering{
-        \small
-        \def\arraystretch{1.8}%
-        \begin{tabular}{ll}
-            \toprule
-            Интегральная форма                                                                                                                                          & Дифференциальная форма                                                        \\ \midrule
-            \(Q_e(t) = \displaystyle\oiint_S \vec D(t) \cdot d\vec{s} = \displaystyle\iiint_V \rho_v(t) dv\)                                                              & \(\nabla \cdot \vec D(t) = \rho_v(t)\)                                          \\
-            \(\displaystyle\oiint_S \vec B(t) \cdot d\vec{s} = 0\)                                                                                                        & \(\nabla \cdot \vec B(t) = 0\)                                                  \\
-            \(V_{emf}(t) = \displaystyle\oint_L \vec E(t) \cdot d\vec{l}\) = \(- \displaystyle\iint_S \left[\frac{\partial\vec{B}(t)}{\partial t}\right] \cdot d\vec{s}\)   & \(\nabla \times \vec E(t) = - \frac{\partial\vec{B}(t)}{\partial t}\)           \\
-            \(I(t) = \displaystyle\oint_L \vec H(t) \cdot d\vec{l} = \displaystyle\iint_S \left[\vec J(t) + \frac{\partial\vec{D}(t)}{\partial t}\right] \cdot d\vec{s}\) & \(\nabla \times \vec H(t) = \vec J(t) + \frac{\partial\vec{D}(t)}{\partial t}\) \\ \midrule
-            \(\displaystyle\oiint_S \vec J \cdot d\vec{s} = -\frac{\partial Q_e}{\partial t}\)                                                                            & \(\nabla \cdot \vec J = - \frac{\partial \rho_v}{\partial t}\)                  \\
-            \bottomrule
-            \multicolumn{2}{c}{\(\vec D(t) = \left[\varepsilon(t)\right] * \vec E(t)\)}                                                                                                                                                                   \\
-            \multicolumn{2}{c}{\(\vec B(t) = \left[\mu(t)\right] * \vec H(t)\)}                                                                                                                                                                           \\
-        \end{tabular}
     }
-    \framebreak
+    \fixme{тут бы картинку сделать?}
+\end{enumerate}
 
-    \hspace{0.05\linewidth}
-    \centering{
-        \small
-        \def\arraystretch{1.8}%
-        \begin{tabular}{ll}
-            \toprule
-            Интегральная форма                                                                                                            & Дифференциальная форма                             \\ \midrule
-            \(Q_e = \displaystyle\oiint_S \vec D \cdot d\vec{s} = \displaystyle\iiint_V \rho_v dv\)                                         & \(\nabla \cdot \vec D = \rho_v\)                     \\
-            \(\displaystyle\oiint_S \vec B \cdot d\vec{s} = 0\)                                                                             & \(\nabla \cdot \vec B = 0\)                          \\
-            \(V_{emf} = \displaystyle\oint_L \vec E \cdot d\vec{l}\) = \(- \displaystyle\iint_S \left[j \omega \vec B\right] \cdot d\vec{s}\) & \(\nabla \times \vec E = - j \omega \vec B\)         \\
-            \(I = \displaystyle\oint_L \vec H \cdot d\vec{l} = \displaystyle\iint_S \left[\vec J + j \omega \vec D\right] \cdot d\vec{s}\)  & \(\nabla \times \vec H = \vec J + j \omega \vec{D}\) \\ \midrule
-            \(\displaystyle\oiint_S \vec J \cdot d\vec{s} = - j \omega Q_e\)                                                                & \(\nabla \cdot \vec J = - j \omega \rho_v\)          \\
-            \bottomrule
-            \multicolumn{2}{c}{\(\vec D(t) = \left[\varepsilon\right] \vec E(t)\)}                                                                                                               \\
-            \multicolumn{2}{c}{\(\vec B(t) = \left[\mu\right] \vec H(t)\)}                                                                                                                       \\
-        \end{tabular}
-    }
 \end{frame}
 
-\subsection{Таблицы}
+\begin{frame}{Верхние токены}
 
-\begin{frame}
-    \frametitle{Таблица}
+Ориентирующийся на когерентность исследователь неявно рассуждает таким образом:
+\begin{enumerate}
+    \item Верхние токены темы имеют высокую когерентность;
+    \item Верхние токены темы встречаются в документах согласованным образом;
+    \item Все токены темы встречаются в документах согласованным образом;
+    \item Тема является хорошей.
+\end{enumerate}
+
+\end{frame}
+\begin{frame}{Доля текста, покрытая верхними словами}
+
+\begin{figure}
+    %\begin{tabular}{p{7.5cm}p{3.5cm}}
+        \includegraphics[width=0.75\textwidth]{doc11358_topic0.png} %&
+        % \includegraphics[width=0.25\textwidth]{legend.eps} \\
+    %\end{tabular}
+\end{figure}
+\vspace{-7pt}
+Словопозиции обозначены серо-синим цветом, словопозиции верхних слов показаны красным цветом, зелёным цветом показаны словопозиции, имеющие ненулевой вклад в расчёт когерентности (т.е. попадающие в скользящее окно вместе с другим верхним словом).
+\end{frame}
+
+\begin{frame}{Доля текста, покрытая верхними словами}
+
+\begin{table}[ht]
+\begin{tabular}{|l|l|l|} \hline
+         & ПостНаука & Википедия \\ \hline
+Минимум  & 0.0159\%  & 0.0065\%  \\ \hline
+Медиана  & 0.0483\%  & 0.0293\%  \\ \hline
+Среднее  & 0.0619\%  & 0.0356\%  \\ \hline
+Максимум & 0.2764\%  & 0.1149\%  \\ \hline
+Суммарно & 1.2027\%  & 1.6585\%  \\ \hline
+\end{tabular}
+\end{table}
+      Доля коллекции, имеющая ненулевой вклад в счётчики парных сочетаемостей 10 верхних слов. Статистики посчитаны по каждой теме отдельно; строка <<суммарно>> показывает представительность объединённого множества верхних слов всех тем.
+\end{frame}
+
+
+\begin{frame}{Внутритекстовая когерентность}
+
+\begin{figure}
     \centering
-    \begin{tabular}{|l|l|}
-        \hline
-        \textbf{Заголовок 1} & \textbf{Заголовок 2} \\
-        \hline
-        Сумма                & \(b+a\)                \\
-        \hline
-        Разность             & \(a-b\)                \\
-        \hline
-        Произведение         & \(a*b\)                \\
-        \hline
-    \end{tabular}
+    \includegraphics[width=0.8\textwidth, height=0.3\textheight]{astronomers_focon.eps} % .eps image is wrong scaled
+\end{figure}
+
+Идея: выделить все соседние слова текста и анализировать их распределение $\phi_{wt}$.
+\medskip
+(вместо того, чтобы выделять небольшое множество слов при помощи $\phi_{wt}$ и затем анализировать, как эти слова встречаются в тексте)
+
 \end{frame}
 
-\begin{frame}
-    \frametitle{Другая таблица}
+\begin{frame}{относительные коэффициенты}
+Общие формулы:
+\[
+\theta_{td} = \norm_{t \in T} \Bigg(
+    n_{td} + \sum_{i=1}^k \lambda_i \Big[
+        \frac{n}{\sum_{d\in D} r_{id}}
+        \Big]
+    \theta_{td} \frac{\partial R_i}{\partial \theta_{td}}
+\Bigg)
+\]
+
+
+
+\[
+\phi_{wt} = \norm_{w \in W}\Bigg(
+    n_{wt} + \sum_{i=1}^k \lambda_i \Big[
+        \frac{n}{\sum_{t\in T} r_{it}}
+        \Big]
+    \phi_{wt} \frac{\partial R_i}{\partial \phi_{wt}}
+\Bigg)
+\]
+
+\small
+\begin{itemize}
+    \item { $r_{id} = \sum_{t\in T} \Big | \theta_{td} \frac{\partial R_i}{\partial \theta_{td}} \Big | $ --- воздействие регуляризатора на документ}
+
+    \item{$r_{it} = \sum_{w\in W} \Big| \phi_{wt} \frac{\partial R_i}{\partial \phi_{wt}} \Big| $ --- воздействие регуляризатора на тему}
+	\item { $\lambda_i$ - относительный коэффициент регуляризации, показывающий, \emph{во сколько раз} соответствующий регуляризатор влияет на оценку матриц больше, чем коллекция}
+\end{itemize}
+
+Случай $\phi_{wt}$ реализован в BigARTM, случай $\theta_{td}$~--- нет (поскольку $r_{id}$ недоступен при параллельной реализации).
+
+\end{frame}
+
+\begin{frame}{Сглаживание и разреживание}
+Для регуляризаторов сглаживания/разреживания ($\Phi$ или $\Theta$) формула существенно упрощается!
+
+\begin{table}[]
+\begin{tabular}{l|c|c|}
+         & \multicolumn{2}{c}{Управляющий параметр}                                                                                                      \\ \hline
+         & $\tau$                                          & $\lambda$                                                                                   \\ \hline 
+         &    &          \\[-5pt]
+$\Phi$   & $\phi_{wt} = \norm_{w \in W}\Bigg(n_{wt} + \tau\Bigg)$    & $\phi_{wt} = \norm_{w \in W}\Bigg(n_{wt} + \lambda {\color{red}\frac{n}{|W||T|}}\Bigg)$    \\[15pt] \hline
+         &    &          \\[-5pt]
+$\Theta$ & $\theta_{td} = \norm_{t \in T} \Bigg(n_{td} + \tau\Bigg)$ & $\theta_{td} = \norm_{t \in T} \Bigg(n_{td} + \lambda {\color{red}\frac{n}{|D| |T|}}\Bigg)$ \\[15pt]  \hline
+\end{tabular}
+\end{table}
+Вывод: сглаживание/разреживание с абсолютным коэффициентом и относительным эквивалентно 
+
+\small
+(в частности, можно вычислить абсолютный коэффициент сглаживания $\Theta$, эквивалентный заданному относительному ).
+
+\end{frame}
+
+\begin{frame}{репараметризация сглаживания/разреживания}
+	
+\begin{equation}
+\tau = \frac{n}{|D| \cdot |T|} \frac{\lambda}{(1-\lambda)}
+\end{equation}
+
+\begin{equation}
+\tau = \frac{n}{|T|\cdot|W|} \frac{\lambda}{(1-\lambda)}  
+\end{equation}
+
+Интерпретация: берём $\lambda$ частей априорного распределения
+\[
+\frac{1}{|T|}\text{ или }\frac{1}{|W|}
+\]
+и $(1-\lambda)$ частей от оценки максимума правдоподобия 
+\[
+\frac{n_{td}}{n_d}\text{ или }\frac{n_{wt}}{n_t}
+\]
+
+
+\end{frame}
+
+\begin{frame}{относительные веса модальностей}
+Формула общего правдоподобия для мультимодального случая:
+
+\[
+L(\Phi^m, \Theta) = \sum_m \tau_m \sum_{d\in D} \sum_{w \in W^m} n_{dw} \ln p(w \cond d) \rightarrow \max, 
+\]
+
+где коэффициенты $\tau_m$ показывают \textit{вес} модальности $m$. Проинтерпретируем это выражение как введение $M-1$ дополнительного регуляризатора $\Theta$ с коэффициентами $\tau_m$. Тогда $\frac{n}{\sum_{d\in D} r_{id}}$ тоже выражается через константы, известные ещё на этапе построения коллекции:
+
+\[
+\tau_m = \lambda_m \frac{n}{\sum_d \check{n}_d^{(m)}} \iff
+\lambda_m = \tau_m \frac{\sum_d \check{n}_d^{(m)}}{n}
+\]
+
+\end{frame}
+
+
+\begin{frame}{Второстепенность матрицы Тета}
+
+Матрица $\Theta$ является менее важной, чем $\Phi$ и на практике хочется её не хранить, а восстанавливать <<на лету>>.
+
+\begin{itemize}
+\item В процессе оценки интерпретируемости обычно используется только матрица $\Phi$.
+
+\item Динамическое расширение коллекции документов: сильно увеличивается $|D|$, $|W|$ растёт медленнее.
+
+\item Пакетный EM-алгоритм: разные документы обрабатываются разными потоками. Используется $\theta_d$, а не матрица $\Theta$ целиком.
+\end{itemize}
+
+\bigskip
+По этим соображениям явно введём зависимость $\Theta = f(\Phi)$. Таким образом, мы предлагаем заменить исходную оптимизационную задачу на следующую:
+
+\begin{equation} \label{eq:tEM}
+L(\Phi, f(\Phi) ) + R(\Phi, f(\Phi) ) \to \max_{\Phi},
+\end{equation}
+\end{frame}
+
+\begin{frame}[t]{$\Theta$ может скомпенсировать <<плохую>> $\Phi$}
+
+Коллекция из 3 документов: 
+\begin{figure}[t]
+\begin{minipage}[t]{0.4\textwidth}
+	\medskip
+\begin{itemize}
+    \item \texttt{herbs and spices}
+    \item \texttt{spices and medicine}
+    \item \texttt{herbs and medicine}
+\end{itemize}
+	\end{minipage}
+	% $\qquad\quad$
+	\begin{minipage}[t]{0.4\textwidth}
+\begin{center}
+\begin{tabular}{l|llll}
+$n_{dw}$   & and & herbs & spices & medicine \\ \hline
+doc1       & 1   & 1     & 1      & 0        \\
+doc2       & 1   & 0     & 1      & 1        \\
+doc3       & 1   & 1     & 0      & 1      
+\end{tabular}
+\end{center}
+
+\end{minipage}
+\end{figure}
+
+Есть много локальных оптимумов с зашумлённой $\Phi$, недостатки которой  <<спрятаны>>  при помощи нулей в матрице $\Theta$:
+\small
+\begin{minipage}[t]{0.4\textwidth}
+\[
+\Phi =
+\begin{pmatrix}
+    0.044 & 0.956 & 0 & 0 \\
+    0.488 & 0 &  0 & 0.512 \\
+    0.488 & 0 & 0.512 & 0   \\
+    0.281 & 0 & 0.279 & 0.44 \\
+\end{pmatrix},
+\]
+	\end{minipage}
+	$\qquad\quad$
+	\begin{minipage}[t]{0.4\textwidth}
+\[
+\Theta =
+\begin{pmatrix}
+    0.349 & 0 & 0.651 & 0 \\
+    0 & 0.008 & 0.244 & 0.748 \\
+    0.348 & 0.652 & 0 & 0 \\
+\end{pmatrix}.
+\]
+\end{minipage}
+\bigskip
+\[
+\Phi \cdot \Theta \approx \frac{1}{3} n_{dw}
+\]
+\normalsize
+\end{frame}
+
+\begin{frame}{EM-алгоритм при $\Theta=f(\Phi)$ [Ирхин, 2020]}
+\small
+\begin{Theorem}
+    Пусть функция $R(\Phi,\Theta)$ непрерывно дифференцируема, а $\Theta$ находится в функциональной зависимости от $\Phi$ согласно формуле    $\theta_{td}(\Phi)
+    = \norm_{t\in T} \biggl( \sum_{w\in W} n_{dw} p_{tdw} \biggr)$.
+    Тогда точка $\Phi$ локального максимума 
+    удовлетворяет системе уравнений со вспомогательными переменными $h_w,\ \theta_{td},\ p_{tdw},\ c_{td},\ \gamma_{dw}$:
+\begin{align*}
+    \phi_{wt} = \norm_{w\in W}
+        \Biggl(\,&
+        \sum_{d\in D} n_{dw} p_{tdw} \\
+        + &\underbrace{\sum_{d\in D} n_{dw} n_d^{-1} \phi_{wt}h_w (c_{td}-h_w\gamma_{dw})}_{
+            \let\scriptstyle\textstyle
+            \substack{\textup{очень похоже на регуляризатор}}
+        } \\ 
+        + &\underbrace{
+            \phi_{wt} \frac{\partial{R}}{\partial{\phi_{wt}}}
+          }_{
+          \let\scriptstyle\textstyle
+            \substack{\textup{регуляризатор}}
+        }
+        \Biggr)
+\end{align*}
+\end{Theorem}
+
+\normalsize
+\end{frame}
+
+\begin{frame}{Влияние на тематическую модель}
+
+\begin{figure}
+\setlength\tabcolsep{0pt} % default value: 6pt
+\begin{tabular}{cc}
+\includegraphics[width=54mm]{images/CH4_baselines_diversity_jensenshannon_False.eps}
+\includegraphics[width=54mm]{images/CH4_baselines_SparsityPhiScore.eps}& \end{tabular}
+\end{figure}
+Сравнение с базовыми моделями (PLSA и LDA с 3 видами приоров). Каждой модели соответствуют три линии: среднее значение, минимум и максимум (по пяти случайным перезапускам)
+\end{frame}
+
+\begin{frame}{Влияние на тематическую модель}
+
+\begin{figure}
+\setlength\tabcolsep{0pt} % default value: 6pt
+\begin{tabular}{cc}
+\includegraphics[width=54mm]{images/CH4_vs_regularized_diversity_jensenshannon_False.eps}
+\includegraphics[width=54mm]{images/CH4_vs_regularized_SparsityPhiScore.eps}& \end{tabular}
+\end{figure}
+Сравнение с тремя аддитивно регуляризованными моделями
+\end{frame}
+
+\begin{frame}{Комбинирование с другими регуляризаторами}
+
+\begin{figure}
+\setlength\tabcolsep{0pt} % default value: 6pt
+\begin{tabular}{cc}
+\includegraphics[width=54mm]{images/CH4_improved_diversity_jensenshannon_False.eps}
+\includegraphics[width=54mm]{images/CH4_improved_SparsityPhiScore.eps}& \end{tabular}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Библиотека TopicNet}
+
+\begin{figure}[ht]
     \centering
-    \begin{tabular}{lc}
-        \toprule
-        \multicolumn{1}{c}{\textbf{Заголовок 1}} & \textbf{Заголовок 2} \\ \midrule
-        Сумма                                    & \(b+a\)                \\
-        Разность                                 & \(a-b\)                \\
-        Произведение                             & \(a*b\)                \\
-        \bottomrule
-    \end{tabular}
+    \includegraphics[width=0.7\textwidth]{training_scheme_example.eps}
+\end{figure} 
+	Тут будет про дерево эксперимента и кубы
 \end{frame}
 
 
-\subsection{Разное}
 
-\begin{frame}
-    \frametitle{Большой многоуровневый список}
-    \begin{itemize}
-        \item \textbf{Пункт 1}
-              \begin{itemize}
-                  \itemi Подпункт 1-1
-                  \itemi Подпункт 1-2
-              \end{itemize}
-        \item \textbf{Пункт 2}
-              \begin{itemize}
-                  \itemi Подпункт 2-1
-              \end{itemize}
-        \item \textbf{Пункт 3}
-              \begin{itemize}
-                  \itemi Подпункт 3-1
-                  \itemi Подпункт 3-2
-              \end{itemize}
-        \item \textbf{Пункт 4}
-              \begin{itemize}
-                  \itemi Подпункт 4-1
-              \end{itemize}
-        \item \textbf{Пункт 5}
-              \begin{itemize}
-                  \itemi Подпункт 5-1
-                  \itemi Подпункт 5-2
-                  \itemi Подпункт 5-3
-              \end{itemize}
-    \end{itemize}
+\begin{frame}{Библиотека TopicNet}
+
+\begin{figure}[ht]
+% \footnotesize
+\raggedright
+\texttt{TopicKernel@word.average\_contrast > 0.95 * MAXIMUM( \\
+\hphantom{\ \ \ \ \ \ \ \ }TopicKernel@word.average\_contrast) \\
+\hphantom{\ \ } and PerplexityScore@all < 1.1 * MINIMUM( \\
+\hphantom{\ \ \ \ \ \ \ \ }PerplexityScore@all) \\
+\hphantom{\ \ } and SparsityPhiScore@word -> max\\
+\hphantom{\ \ } COLLECT 3} \\
+\label{DSL-example}
+\end{figure} 
+	Язык отбора моделей:
+	
+%\begin{lstlisting}
+%S -> <Expr> | <Expr> <Clct>
+%<Clct> -> COLLECT <Int>
+%<Expr> -> <Expr> AND <Expr>
+%<Optr> -> less | eq | great
+%<Expr> -> <Literal> <Optr> <Number>
+%<Expr> -> <Literal> to MIN | <Literal> to MAX
+%<Literal> -> <ScoreName> | model<ParameterName>
+%\end{lstlisting} 
+
+\texttt{model.num\_topics == 10 AND SparsityPhiScore\@word > MEDIAN(SparsityPhiScore\@word) AND MyCustomScore -> MAX}
+
 \end{frame}
 
-\begin{frame}
-    \frametitle{Четыре изображения}
-    \centering
-    \includegraphics[width=0.35\linewidth,angle=35]{latex}
-    \includegraphics[width=0.35\linewidth,angle=135]{latex}\\
-    \includegraphics[width=0.35\linewidth,angle=15]{latex}
-    \includegraphics[width=0.35\linewidth,angle=-15]{latex}
+\begin{frame}{Библиотека TopicNet}
+	Тут будет про рецепты и конфиги в YAML-формате
 \end{frame}
+
+\begin{frame}{TopicNet vs GenSim}
+	круто по LogLift и различности, но не дожали по когерентности
+\end{frame}
+
+\begin{frame}{TopicNet Thetaless vs GenSim}
+Вспоминаем, что Thetaless повышает когерентность. Добавляем. Победили по всему.
+\end{frame}
+
+
+\begin{frame}{Таксономия обращений}
+	Постановка задачи
+\end{frame}
+
+\begin{frame}{Таксономия обращений}
+	Две разных коллекции. Примеры документов/тем из первой и из второй.
+\end{frame}
+
+\begin{frame}{Таксономия обращений}
+    мы использовали пять модальностей
+    среди них нграмы
+	веса модальностей относительные: чиселки.
+\end{frame}
+
+\begin{frame}{Таксономия обращений}
+	примеры тем модели
+
+	можно гифку с иерархией тем?
+\end{frame}
+
+\begin{frame}[t]{Публикации и РИДы}
+\footnotesize
+
+Публикации в изданиях, индексируемых Scopus:
+\begin{itemize}
+    \smallskip\item  V. Alekseev, V. Bulatov, K. Vorontsov. Intra-text coherence as a measure of topic models’ interpretability  // Dialogue 2018
+
+    \smallskip\item A. Popov, V. Bulatov, D. Polyudova, E. Veselova. Unsupervised dialogue intent detection via hierarchical topic model // RANLP 2019
+
+    \smallskip\item V. Bulatov, V. Alekseev, K. Vorontsov, D. Polyudova, E. Veselova, A. Goncharov, E. Egorov. TopicNet: Making Additive Regularisation for Topic Modelling Accessible // LREC 2020
+
+    \smallskip\item\color{red} И. А. Ирхин, В. Г. Булатов, К. В. Воронцов. Аддитивная регуляризация тематических моделей с быстрой векторизацией текста // Компьютерные исследования и моделирование, 2020
+\end{itemize}
+
+Зарегистрированные программы для ЭВМ в РФ:
+\begin{itemize}
+    \smallskip\item  Topic Net Cooking Machine  / Гончаров А. В., Булатов В. Г., Воронцов. К. В.; МФТИ. --- опубл. 17.09.2019, 2019662102
+
+    \smallskip\item Система создания таксономии текстовой коллекции диалогового контактного центра / Гончаров А. В., Егоров. Е. О., Веселова. Е. Р., Булатов. В. Г.; МФТИ. --- опубл. 17.03.2020, 2020613851
+
+    \smallskip\item Topic Net Viewers  / Гончаров А. В., Булатов В. Г., Воронцов. К. В.; МФТИ. --- опубл. 10.09.2019, 2019661840
+
+\end{itemize}
+
+\normalsize
+\end{frame}
+
 

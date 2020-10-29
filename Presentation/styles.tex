@@ -83,3 +83,31 @@
         \setbeameroption{show notes on second screen=\presposition}
     }{}
 }
+
+\newcommand{\norm}{\mathop{\mathrm{norm}}\limits}
+\usepackage{multirow}
+\usepackage{cmap}
+\usepackage{multicol}
+
+\newcommand{\cond}{\mspace{2mu}{|}\mspace{2mu}}
+
+\usepackage{listings}
+
+\lstset{
+  %basicstyle=\itshape,
+  %basicstyle=\ttfamily\color{black},
+  basicstyle=\rmfamily\color{black},
+  xleftmargin=3em,
+  literate={->}{$\rightarrow$}{2}
+           {<}{$\langle$}{1}
+           {>}{$\rangle$}{1}
+           {to}{{\textbf{{\color{red}\textemdash$>$}}}}{2}
+           {less}{{{\color{red}$<$}}}{1}
+           {great}{{{\color{red}$>$}}}{1}
+           {eq}{{{\color{red}$=$}}}{1}
+           {model}{{{\color{red}\texttt{model.}}}}{6}
+           {MAX}{{{\color{red}\texttt{MAX}}}}{3}
+           {MIN}{{{\color{red}\texttt{MIN}}}}{3}
+           {AND}{{{\color{red}\texttt{AND}}}}{3}
+           {COLLECT}{{{\color{red}\texttt{COLLECT}}}}{7}
+}
