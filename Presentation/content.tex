@@ -1,4 +1,4 @@
-\section{Введение в тематическое моделирование}
+\BeginSection{Введение в тематическое моделирование}
 \begin{frame}[t]{Задача тематического моделирования}
 \textbf{Дано:}
 \begin{itemize}
@@ -80,7 +80,6 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 
 \end{frame}
 
-
 \begin{frame}[t]{Цель и задачи диссертационного исследования}
 \textbf{Цель:} разработка технологии построения интерпретируемых  тематических моделей, применимых для решения широкого класса задач тематического моделирования.
 
@@ -108,12 +107,91 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 
 % \end{frame}
 
-\section{Методология построения ТМ в библиотеке TopicNet}
+\BeginSection{Методология построения ТМ в библиотеке TopicNet}
 
+\begin{frame}{Дерево эксперимента в библиотеке TopicNet}
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.6\textwidth]{training_scheme_example.eps}
+\end{figure} 
+        Первый этап: регуляризатор с $\tau \in \{\tau_1, \tau_2, \tau_3\}$.\\
+        Лучшими оказываются \emph{Model 1} и \emph{Model 2}, они проходят на второй этап.\\
+        К ним применяется другой регуляризатор с $\xi \in \{\xi_1, \xi_2\}$.
+\end{frame}
 
-\begin{frame}{Верхние токены}
+\begin{frame}{Cooking Machine: кубы, гиперпараметры и журналирование}
 
+Класс \texttt{Cube}~--- чертёж или инкубатор. Эксперимент --- цепочка кубов. Куб выполняет две важные функции.
+\begin{itemize}
+    \item \textit{спецификация}: пользователь задаёт параметры, нужно построить многомерное пространство поиска 
+    \item \textit{применение}: есть модель и точка в пространстве поиска, нужно построить модель-потомка.
+\end{itemize}
+
+Regularizer Modifier Cube: <<применить к модели регуляризатор с произвольными параметрами и запустить процесс обучения модели на какое-то количество итераций>>.
+
+Creator Cube: <<инициализировать модель произвольными параметрами>>.
+
+\end{frame}
+
+\begin{frame}[t]{Рецепты моделирования}
+Инициализация модели в Baseline Recipe\\
+
+\footnotesize \texttt{\\
+\textcolor{blue}{topics}: \\
+\ \ \textcolor{blue}{specific\_topics}: \colorbox{gray!30}{\{specific\_topics\}} \\
+\ \     \textcolor{blue}{background\_topics}: \colorbox{gray!30}{\{background\_topics\}} \\
+\textcolor{blue}{regularizers}: \\
+\ \ - DecorrelatorPhiRegularizer: \\
+\ \ \ \ \textcolor{blue}{name}: decorrelation\_phi \\
+\ \ \ \ \textcolor{blue}{topic\_names}: specific\_topics \\
+\ \ \ \ \textcolor{blue}{class\_ids}: \colorbox{gray!30}{\{modality\_list\}} \\
+\ \ - SmoothSparsePhiRegularizer: \\
+\ \ \ \ \textcolor{blue}{name}: smooth\_phi\_bcg \\
+\ \ \ \ \textcolor{blue}{topic\_names}: background\_topics \\
+\ \ \ \ \textcolor{blue}{class\_ids}: \colorbox{gray!30}{\{modality\_list\}} \\
+\ \ \ \ \textcolor{blue}{tau}: 0.1 \\
+\ \ \ \ \textcolor{blue}{relative}: true \\
+\ \ - SmoothSparseThetaRegularizer: \\
+\ \ \ \ \textcolor{blue}{name}: smooth\_theta\_bcg \\
+\ \ \ \ \textcolor{blue}{topic\_names}: background\_topics \\
+\ \ \ \ \textcolor{blue}{tau}: 0.1 \\
+\ \ \ \ \textcolor{blue}{relative}: true \\
+}
+
+\end{frame}
+
+\begin{frame}[t]{Рецепты моделирования}
+Перебор коэффициента декорреляции в Baseline Recipe\\
+
+\footnotesize \texttt{\\
+\textcolor{blue}{stages}: \\
+- RegularizersModifierCube: \\
+\ \ \textcolor{blue}{num\_iter}: 20 \\
+\ \ \textcolor{blue}{reg\_search}: add \\
+\ \ \textcolor{blue}{regularizer\_parameters}: \\
+\ \ \ \ \textcolor{blue}{name}: decorrelation\_phi \\
+\ \ \textcolor{blue}{selection}: \\
+\ \ \ \ - PerplexityScore\@all < 1.05 * MINIMUM(PerplexityScore\@all) and BleiLaffertyScore -> max \\
+\ \ \textcolor{blue}{strategy}: PerplexityStrategy \\
+\ \ \textcolor{blue}{strategy\_params}: \\
+\ \ \ \ \textcolor{blue}{start\_point}: 0 \\
+\ \ \ \ \textcolor{blue}{step}: 0.01 \\
+\ \ \ \ \textcolor{blue}{max\_len}: 50 \\
+\ \ \textcolor{blue}{tracked\_score\_function}: PerplexityScore\@all \\
+\ \ \textcolor{blue}{use\_relative\_coefficients}: true	\\
+}
+
+Пространство поиска: все возможные $\tau$ у регуляризатора с названием \texttt{decorrelation\_phi}.\\
+
+Стратегия обхода: начинаем с $\tau=0$, увеличиваем коэффициент линейно на 0.01 до тех пор, пока перплексия новой модели не будет слишком большой.
+\end{frame}
+
+\BeginSection{Многокритериальный отбор моделей}
+
+\begin{frame}{Когерентность и интерпретируемость}
+
+Почему нельзя просто оптимизировать когерентность? Общая схема измерения когерентности:
 
 \begin{enumerate}
     \item Для каждой темы выбирается какой-то небольшой набор характеризующих её токенов (как правило, это 10 верхних токенов).
@@ -123,22 +201,35 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
         \item качество тем оценивается путём автоматического вычисления определённых статистик, в частности, парной сочетаемости верхних токенов в текстовой коллекции.
     \end{itemize}
     }
-    % \fixme{тут бы картинку сделать?}
 \end{enumerate}
+
+Если верхние токены темы встречаются в документах согласованным образом,  то тема называется \textit{когерентной} (буквально: связной, цельной, согласованной).
+\end{frame}
+
+\begin{frame}{Недостаточность когерентности}
+Одной когерентности недостаточно.
+
+В работе\footnote{A. Fan, F. Doshi-Velez, L. Miratrix. Assessing topic model relevance: Evaluation and informative priors // Statistical Analysis and Data Mining: The ASA Data Science Journa} описывается проблема мер когерентности в условиях наличия стоп-слов. Предлагается системный подход: оценивание каждой темы по нескольким критериям качества (в частности, когерентность и новый критерий LogLift).
+
+\smallskip
+\begin{table}[ht]
+    \small\centering
+    \begin{tabularx}{0.8\textwidth}{|X|l|l|}
+    \hline
+    Верхние слова &  UMass & UCI
+    \\ \hline	
+law gun state government right weapon crime bill firearm control &
+-2.2584 & 0.7389
+    \\ \hline
+one would get go say think make time know like & \textbf{-0.9392} & \textbf{0.7822}
+    \\ \hline
+    \end{tabularx}
+\end{table}
+10 верхних слов в двух темах и оценки их качества при помощи UMass-когерентности и UCI-когерентности.
+
 
 \end{frame}
 
-\begin{frame}{Верхние токены}
-
-Ориентирующийся на когерентность исследователь неявно рассуждает таким образом:
-\begin{enumerate}
-    \item Верхние токены темы имеют высокую когерентность;
-    \item Верхние токены темы встречаются в документах согласованным образом;
-    \item Все токены темы встречаются в документах согласованным образом;
-    \item Тема является хорошей.
-\end{enumerate}
-
-\end{frame}
 \begin{frame}{Доля текста, покрытая верхними словами}
 
 \begin{figure}
@@ -151,47 +242,56 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 Словопозиции обозначены серо-синим цветом, словопозиции верхних слов показаны красным цветом, зелёным цветом показаны словопозиции, имеющие ненулевой вклад в расчёт когерентности (т.е. попадающие в скользящее окно вместе с другим верхним словом).
 \end{frame}
 
-\begin{frame}{Доля текста, покрытая верхними словами}
+% \begin{frame}{Внутритекстовая когерентность}
+% \begin{figure}
+%    \centering
+%     \includegraphics[width=0.8\textwidth, height=0.3\textheight]{astronomers_focon.eps} % .eps image is wrong scaled
+% \end{figure}
 
-\begin{table}[ht]
-\begin{tabular}{|l|l|l|} \hline
-         & ПостНаука & Википедия \\ \hline
-Минимум  & 0.0159\%  & 0.0065\%  \\ \hline
-Медиана  & 0.0483\%  & 0.0293\%  \\ \hline
-Среднее  & 0.0619\%  & 0.0356\%  \\ \hline
-Максимум & 0.2764\%  & 0.1149\%  \\ \hline
-Суммарно & 1.2027\%  & 1.6585\%  \\ \hline
-\end{tabular}
-\end{table}
-      Доля коллекции, имеющая ненулевой вклад в счётчики парных сочетаемостей 10 верхних слов. Статистики посчитаны по каждой теме отдельно; строка <<суммарно>> показывает представительность объединённого множества верхних слов всех тем.
-\end{frame}
+% Идея: выделить все соседние слова текста и анализировать их распределение $\phi_{wt}$.\\
+% \medskip
+% (вместо того, чтобы выделять небольшое множество слов при помощи $\phi_{wt}$ и затем анализировать, как эти слова встречаются в тексте)
+
+% \end{frame}
 
 
-\begin{frame}{Внутритекстовая когерентность}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth, height=0.3\textheight]{astronomers_focon.eps} % .eps image is wrong scaled
-\end{figure}
+\begin{frame}{Отбор моделей в библиотеке TopicNet}
 
-Идея: выделить все соседние слова текста и анализировать их распределение $\phi_{wt}$.\\
+Значит, отбор должен быть многокритериальным. Для удобства в TopicNet введён специальный язык отбора моделей:
+
+\begin{figure}[ht]
+% \footnotesize
+\raggedright
+\texttt{TopicKernel@word.average\_contrast > 0.95 * MAXIMUM( \\
+\hphantom{\ \ \ \ \ \ \ \ }TopicKernel@word.average\_contrast) \\
+\hphantom{\ \ } and PerplexityScore@all < 1.1 * MINIMUM( \\
+\hphantom{\ \ \ \ \ \ \ \ }PerplexityScore@all) \\
+\hphantom{\ \ } and SparsityPhiScore@word -> max\\
+\hphantom{\ \ } COLLECT 3} \\
+\label{DSL-example}
+\end{figure} 
+	
+%\begin{lstlisting}
+%S -> <Expr> | <Expr> <Clct>
+%<Clct> -> COLLECT <Int>
+%<Expr> -> <Expr> AND <Expr>
+%<Optr> -> less | eq | great
+%<Expr> -> <Literal> <Optr> <Number>
+%<Expr> -> <Literal> to MIN | <Literal> to MAX
+%<Literal> -> <ScoreName> | model<ParameterName>
+%\end{lstlisting} 
+
+\bigskip
+Поддержка пользовательским критериев качества:\\
 \medskip
-(вместо того, чтобы выделять небольшое множество слов при помощи $\phi_{wt}$ и затем анализировать, как эти слова встречаются в тексте)
-
+\texttt{model.num\_topics == 10 and SparsityPhiScore\@word > MEDIAN(SparsityPhiScore\@word) and MyCustomScore -> max}\\
+\medskip
+Так реализованы \texttt{BleiLaffertyScore}, \texttt{LogLift}, попарные расстояния между темами.
 \end{frame}
 
-\begin{frame}{Внутритекстовая когерентность}
 
-\begin{figure}
-\begin{tabular}{cc}
-    \includegraphics[width=70mm]{images/segm_mimno.png}
-\includegraphics[width=70mm]{images/segm_focon.png} \\
-\end{tabular}
-\end{figure}
-
-Сравнение различных мер когерентности и качества сегментации, нарисованное как функция от степени деградации тематической модели $\alpha$.
-
-\end{frame}
+\BeginSection{Способы повышения качества тематических моделей}
 
 \begin{frame}{Относительные коэффициенты регуляризации}
 Общие формулы:
@@ -267,14 +367,14 @@ $\Theta$ & $\theta_{td} = \norm_{t \in T} \Bigg(n_{td} + \tau\Bigg)$ & $\theta_{
 
 \end{frame}
 
-\begin{frame}{относительные веса модальностей}
+\begin{frame}{Относительные веса модальностей}
 Формула общего правдоподобия для мультимодального случая:
 
 \[
 L(\Phi^m, \Theta) = \sum_m \tau_m \sum_{d\in D} \sum_{w \in W^m} n_{dw} \ln p(w \cond d) \rightarrow \max, 
 \]
 
-где коэффициенты $\tau_m$ показывают \textit{вес} модальности $m$. Проинтерпретируем это выражение как введение $M-1$ дополнительного регуляризатора $\Theta$ с коэффициентами $\tau_m$. Тогда $n(\sum_{d\in D} r_{id})^{-1}$ тоже выражается через константы, известные ещё на этапе построения коллекции:
+где коэффициенты $\tau_m$ показывают \textit{вес} модальности $m$. Проинтерпретируем это выражение как введение $M-1$ дополнительного регуляризатора $\Theta$ с коэффициентами $\tau_m$. Тогда $\sum_{d\in D} r_{id}$ тоже выражается через константы, известные ещё на этапе построения коллекции:
 
 \[
 \tau_m = \lambda_m \frac{n}{\sum_d n_d^{(m)}} \iff
@@ -283,10 +383,77 @@ L(\Phi^m, \Theta) = \sum_m \tau_m \sum_{d\in D} \sum_{w \in W^m} n_{dw} \ln p(w 
 
 \end{frame}
 
+\begin{frame}{Таксономия обращений}
+	Дано: большая коллекция диалогов между клиентом и оператором.\\
+	
+	Найти: иерархию интентов, входящих в коллекцию. \\
+	
+	Критерии: \begin{itemize}
+	    \item Интерпретируемая тематическая модель
+	    \item Иерархическая модель, два уровня.
+	    \item  Темы первого уровня описывают субъект диалога
+	    \item  Темы второго уровня должны описывать действие, в котором заинтересован пользователь.
+	    \item  Стратегия построения модели должна переноситься на похожие коллекции
+	\end{itemize}
 
-\begin{frame}{Второстепенность матрицы Тета}
+\end{frame}
 
-Матрица $\Theta$ является менее важной, чем $\Phi$. На практике хочется её не хранить, а восстанавливать <<на лету>>.
+\begin{frame}{Решение задачи}
+
+
+Используется пять модальностей:
+\begin{itemize}
+    \item \texttt{@lemmatized} (просто слова)
+    \item \texttt{@verb\_lemmatized} (слова-глаголы)
+    \item \texttt{@noun\_lemmatized} (слова-существительные и слова-прилагательные)
+    \item \texttt{@theme\_ngramms} ($n$-грамы с существительными и без глаголов)
+    \item \texttt{@verb\_ngramms} ($n$-грамы с глаголами)
+\end{itemize}
+
+%{\footnotesize
+%(информативные $n$-грамы выделены с помощью модифицированного алгоритма TopMine)}
+
+\bigskip
+Веса модальностей относительные и разные на двух уровнях.
+\begin{table}[]
+\begin{tabular}{|l|l|l|}\hline
+                & Вес на первом уровне & Вес на втором уровне \\ \hline
+\texttt{@lemmatized}     & 0.5                  & 0.5                  \\ \hline
+ \texttt{@theme\_ngramms}   & 0.5                  & 0.5                  \\ \hline
+\texttt{@verb\_ngramms}    & 0.1                  & 1                    \\ \hline
+\texttt{@verb\_lemmatized} & 0.1                  & 1                    \\ \hline
+\texttt{@noun\_lemmatized} & 0.5                  & 0.1                 \\ \hline
+\end{tabular}
+\end{table}
+
+\end{frame}
+
+\begin{frame}{Полученные темы для двух коллекций}
+
+\begin{table}[!h]
+\begin{tabularx}{\textwidth}{|X|X|}
+  \hline
+  \textbf{Тарифный план} & \textbf{Запись на приём к врачу} \\
+  \hline
+  \textsl{Как сменить тарифный план?} &   \textsl{Как записать на приём ребёнка?}\\
+  \textsl{Когда произошло изменение тарифного плана?} &   \textsl{Почему я не могу записаться на приём?}\\
+  \textsl{Как часто можно менять тарифный план?} &  \textsl{Почему в списке нет поликлиники №X?} \\
+  \textsl{Когда вступят в силу изменения тарифного плана?} &    \textsl{Почему в списке нет специалиста X?} \\
+  \textsl{Почему у меня не получается изменить тарифный план?} & \textsl{Как отменить запись?}\\
+  \hline
+\end{tabularx}
+\caption{Различные подтемы темы верхнего уровня}
+\label{topic_subtopic}
+\end{table}
+
+\end{frame}
+
+
+
+
+\begin{frame}{Функциональная зависимость $\Theta = f(\Phi)$}
+
+Матрица $\Theta$ является менее важной, чем $\Phi$. На практике она часто не хранится в явном виде, а восстанавливается <<на лету>>.
 
 \begin{itemize}
 \item Оценка интерпретируемости: обычно используется только матрица $\Phi$.
@@ -295,6 +462,9 @@ L(\Phi^m, \Theta) = \sum_m \tau_m \sum_{d\in D} \sum_{w \in W^m} n_{dw} \ln p(w 
 
 \item Пакетный EM-алгоритм: разные документы обрабатываются разными потоками. Используется $\theta_d$, а не матрица $\Theta$ целиком.
 \end{itemize}
+
+\bigskip
+По этим соображениям естественно рассмотреть зависимость $\Theta = f(\Phi)$, где $f$ --- одна итерация M-шага, восстанавливающая $\Theta$ с фиксированной $\Phi$.
 
 \end{frame}
 
@@ -324,16 +494,16 @@ doc3       & 1   & 1     & 0      & 1
 \end{minipage}
 \end{figure}
 
-Есть много локальных оптимумов с зашумлённой $\Phi$, недостатки которой  <<спрятаны>>  при помощи нулей в матрице $\Theta$:
+Существуют решения с зашумлённой $\Phi$ (например, <<and>> во всех темах), недостатки которой  <<спрятаны>>  при помощи нулей в $\Theta$:
 \small
 \begin{minipage}[t]{0.4\textwidth}
 \[
 \Phi =
 \begin{pmatrix}
-    0.044 & 0.956 & 0 & 0 \\
-    0.488 & 0 &  0 & 0.512 \\
-    0.488 & 0 & 0.512 & 0   \\
-    0.281 & 0 & 0.279 & 0.44 \\
+0.044 & 0.488 & 0.488 & 0.281 \\
+0.956 & 0     & 0     & 0     \\
+0     & 0     & 0.512 & 0.279 \\
+0     & 0.512 & 0     & 0.44  \\
 \end{pmatrix},
 \]
 	\end{minipage}
@@ -342,9 +512,10 @@ doc3       & 1   & 1     & 0      & 1
 \[
 \Theta =
 \begin{pmatrix}
-    0.349 & 0 & 0.651 & 0 \\
-    0 & 0.008 & 0.244 & 0.748 \\
-    0.348 & 0.652 & 0 & 0 \\
+0.349 & 0     & 0.348 \\
+0     & 0.008 & 0.652 \\
+0.651 & 0.244 & 0     \\
+0     & 0.748 & 0     \\
 \end{pmatrix}.
 \]
 \end{minipage}
@@ -356,7 +527,7 @@ doc3       & 1   & 1     & 0      & 1
 \end{frame}
 
 \begin{frame}[t]{EM-алгоритм при $\Theta=f(\Phi)$ [Ирхин, 2020]}
-По этим соображениям явно введём зависимость $\Theta = f(\Phi)$. Получается другая оптимизационная задача:
+При наличии зависимости $\Theta = f(\Phi)$ получается другая оптимизационная задача:
 
 \begin{equation} \label{eq:tEM}
 L(\Phi, f(\Phi) ) + R(\Phi, f(\Phi) ) \to \max_{\Phi},
@@ -401,7 +572,7 @@ L(\Phi, f(\Phi) ) + R(\Phi, f(\Phi) ) \to \max_{\Phi},
 \end{align*}
 \end{minipage}
 
-Вывод: обучение можно <<сэмулировать>> внутри BigARTM, введя фиктивный псевдорегуляризатор и положив \texttt{num\_document\_passes\ =\ 1}.
+Вывод: обучение можно <<сэмулировать>> внутри BigARTM, введя фиктивный псевдорегуляризатор и положив \texttt{num\_document\_passes~=~1}.
 
 \end{frame}
 
@@ -436,88 +607,76 @@ L(\Phi, f(\Phi) ) + R(\Phi, f(\Phi) ) \to \max_{\Phi},
 \includegraphics[width=54mm]{images/CH4_improved_diversity_jensenshannon_False.eps}
 \includegraphics[width=54mm]{images/CH4_improved_SparsityPhiScore.eps}& \end{tabular}
 \end{figure}
-Псевдорегуляризатор успешно комбинируется с другими регуляризаторами ARTM, за счёт чего можно улучшить критерии качества ещё больше. 
+% Псевдорегуляризатор успешно комбинируется с другими регуляризаторами ARTM, за счёт чего можно улучшить критерии качества ещё больше.
 
 Тематическая модель с псевдорегуляризатором и традиционным набором регуляризаторов (сглаживание фоновых тем, разреживание предметных тем, декорреляция) выигрывает у аналогичного ARTM по разреженности.
 
 \end{frame}
 
-\begin{frame}{Дерево эксперимента в библиотеке TopicNet}
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.6\textwidth]{training_scheme_example.eps}
-\end{figure} 
-        Первый этап: регуляризатор с $\tau \in \{\tau_1, \tau_2, \tau_3\}$.\\
-        Лучшими оказываются \emph{Model 1} и \emph{Model 2}, они проходят на второй этап.\\
-        К ним применяется другой регуляризатор с $\xi \in \{\xi_1, \xi_2\}$.
-\end{frame}
-
-\begin{frame}{Отбор моделей в библиотеке TopicNet}
-
-Язык отбора моделей:
-
-\begin{figure}[ht]
-% \footnotesize
-\raggedright
-\texttt{TopicKernel@word.average\_contrast > 0.95 * MAXIMUM( \\
-\hphantom{\ \ \ \ \ \ \ \ }TopicKernel@word.average\_contrast) \\
-\hphantom{\ \ } and PerplexityScore@all < 1.1 * MINIMUM( \\
-\hphantom{\ \ \ \ \ \ \ \ }PerplexityScore@all) \\
-\hphantom{\ \ } and SparsityPhiScore@word -> max\\
-\hphantom{\ \ } COLLECT 3} \\
-\label{DSL-example}
-\end{figure} 
-	
-%\begin{lstlisting}
-%S -> <Expr> | <Expr> <Clct>
-%<Clct> -> COLLECT <Int>
-%<Expr> -> <Expr> AND <Expr>
-%<Optr> -> less | eq | great
-%<Expr> -> <Literal> <Optr> <Number>
-%<Expr> -> <Literal> to MIN | <Literal> to MAX
-%<Literal> -> <ScoreName> | model<ParameterName>
-%\end{lstlisting} 
-
-Поддержка пользовательским критериев качества:
-
-\texttt{model.num\_topics == 10 and SparsityPhiScore\@word > MEDIAN(SparsityPhiScore\@word) and MyCustomScore -> max}
-
-\end{frame}
-
-\begin{frame}{Библиотека TopicNet}
-	Тут будет про рецепты и конфиги в YAML-формате
-\end{frame}
+\BeginSection{TopicNet и <<настройки по умолчанию>>}
 
 \begin{frame}{Конкуренты и <<параметры по умолчанию>>}
 
+\begin{table}[h]
+\begin{tabular}{|l|l|l|}
+\hline
+           & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Jaccard measure\\ of topic dissimilarity\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Average topic\\ coherence\end{tabular}} \\ \hline
+TopicNet   & \textbf{0.00169}                                                                                               & -2.551                                                                                 \\ \hline
+Gensim LDA & 0.01374                                                                                               & -2.747                                                                                 \\ \hline
+STTM DMM   & 0.37541                                                                                               & -2.726                                                                                 \\ \hline
+STTM PTM   & 0.02485                                                                                               & \textbf{-2.510}                                                                                 \\ \hline
+STTM WNTM  & 0.01997                                                                                               & -3.572                                                                                 \\ \hline 
+\end{tabular}
+\caption{Сравнение качества различных моделей, построенных при помощи различных программных средств}
+\end{table} 
+
+
 
 \end{frame}
 
-\begin{frame}{TopicNet Thetaless vs GenSim}
-Вспоминаем, что Thetaless повышает когерентность. Добавляем. Победили по всему.
+\begin{frame}{Базовый рецепт с быстрой векторизацией}
+
+\begin{table}[h]
+\begin{tabular}{|l|l|l|}
+\hline
+                         & UMass & LogLift             \\ \hline
+BaselineRecipe           & -3.145         & 29.217         \\ \hline
+ThetalessBleiLafferty   & -2.075         & 31.143           \\ \hline
+ThetalessLift           & \textbf{-1.805}  & \textbf{33.904} \\ \hline
+LDA\_asymmetric\_symmetric & -2.446          & 21.388           \\ \hline
+LDA\_asymmetric\_auto      & -3.078          & 24.321          \\ \hline
+LDA\_symmetric\_symmetric  & -2.884          & 23.554         \\ \hline
+LDA\_symmetric\_auto       & -2.279         & 21.738          \\ \hline
+LDA\_auto\_symmetric       & -2.382           & 24.154          \\ \hline
+LDA\_auto\_auto            & -2.749          & 25.458 \\ \hline
+\end{tabular}
+\caption{Сравнение моделей по ряду критериев качества. Повышение как UMass-когерентности так и LogLift означает улучшение модели. Также модели TopicNet превосходят GenSim по разреженности и различности тем.}
+\label{tbl:better_baseline}
+\end{table} 
+
 \end{frame}
 
 
-\begin{frame}{Таксономия обращений}
-	Постановка задачи
+
+\begin{frame}
+    \frametitle{Положения, выносимые на защиту}
+\small
+    \begin{itemize}
+\item
+    Методология построения тематических моделей, обеспечивающая формирование <<рецептов моделирования>> с автоматизированным подбором гиперпараметров по множеству критериев и отличающаяся использованием относительных коэффициентов регуляризации и кубов гиперпараметров.
+\item
+    Архитектура библиотеки TopicNet, обеспечивающая программную реализацию данной методологии и отличающаяся использованием удобного языка описания кубов гиперпараметров и возможностью создания пользовательских регуляризаторов и метрик качества на языке Python.
+\item
+    Универсальный рецепт моделирования, обеспечивающий многокритериальный выбор тематических моделей для широкого класса задач, отличающийся предварительной настройкой куба гиперпараметров по набору разнородных задач тематического моделирования.
+\item
+    Программная реализация нового критерия когерентности, обеспечивающая его эффективное вычисление и отличающаяся более полным использованием данных о сочетаемости слов внутри текстовых документов.
+%\item
+%    Программная реализация псевдорегуляризатора в библиотеке TopicNet, обеспечивающего быстрое однопроходное вычисление тематических векторных представлений документов и улучшение качества тематической модели по множеству критериев.
+    \end{itemize}
+
+    
 \end{frame}
 
-\begin{frame}{Таксономия обращений}
-	Две разных коллекции. Примеры документов/тем из первой и из второй.
-\end{frame}
-
-\begin{frame}{Таксономия обращений}
-    мы использовали пять модальностей
-    среди них нграмы
-	веса модальностей относительные: чиселки.
-\end{frame}
-
-\begin{frame}{Таксономия обращений}
-	примеры тем модели
-
-	можно гифку с иерархией тем?
-\end{frame}
 
 \begin{frame}[t]{Публикации и РИДы}
 \footnotesize
@@ -545,26 +704,3 @@ L(\Phi, f(\Phi) ) + R(\Phi, f(\Phi) ) \to \max_{\Phi},
 
 \normalsize
 \end{frame}
-
-
-\begin{frame}
-    \frametitle{Положения, выносимые на защиту}
-\small
-    \begin{itemize}
-\item
-    Методология построения тематических моделей, обеспечивающая формирование <<рецептов моделирования>> с автоматизированным подбором гиперпараметров по множеству критериев и отличающаяся использованием относительных коэффициентов регуляризации и кубов гиперпараметров.
-\item
-    Архитектура библиотеки TopicNet, обеспечивающая программную реализацию данной методологии и отличающаяся использованием удобного языка описания кубов гиперпараметров и возможностью создания пользовательских регуляризаторов и метрик качества на языке Python.
-\item
-    Универсальный рецепт моделирования, обеспечивающий многокритериальный выбор тематических моделей для широкого класса задач, отличающийся предварительной настройкой куба гиперпараметров по набору разнородных задач тематического моделирования.
-\item
-    Программная реализация нового критерия когерентности, обеспечивающая его эффективное вычисление и отличающаяся более полным использованием данных о сочетаемости слов внутри текстовых документов.
-%\item
-%    Программная реализация псевдорегуляризатора в библиотеке TopicNet, обеспечивающего быстрое однопроходное вычисление тематических векторных представлений документов и улучшение качества тематической модели по множеству критериев.
-    \end{itemize}
-
-    
-\end{frame}
-\note{
-    Проговариваются вслух положения, выносимые на защиту
-}

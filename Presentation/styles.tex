@@ -92,6 +92,7 @@
 \newcommand{\cond}{\mspace{2mu}{|}\mspace{2mu}}
 
 \usepackage{listings}
+\usepackage{tabularx}
 
 \lstset{
   %basicstyle=\itshape,
@@ -110,4 +111,15 @@
            {MIN}{{{\color{red}\texttt{MIN}}}}{3}
            {AND}{{{\color{red}\texttt{AND}}}}{3}
            {COLLECT}{{{\color{red}\texttt{COLLECT}}}}{7}
+}
+
+
+\newcommand{\BeginSection}[1]{
+    \section{#1}
+    \begin{frame}[plain, noframenumbering]
+        \begin{center}
+            \Huge
+            #1
+        \end{center}
+    \end{frame}
 }
