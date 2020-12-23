@@ -1,4 +1,4 @@
-\BeginSection{Введение в тематическое моделирование}
+\BeginSection{Введение}
 \begin{frame}[t]{Задача тематического моделирования}
 \textbf{Дано:}
 \begin{itemize}
@@ -12,8 +12,8 @@
 множество тем $T$ и два семейства распределений:
 \smallskip
 \begin{itemize}
-    \item $p(w \cond t)$ --- распределения термов в темах
-    \item $p(t \cond d)$ --- распределения тем в документах
+    \item $p(w \cond t)$ --- распределения термов в темах (матрица $\Phi$)
+    \item $p(t \cond d)$ --- распределения тем в документах (матрица $\Theta$)
 \end{itemize}
 
 \[
@@ -34,25 +34,28 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 Воронцов К. В. Аддитивная регуляризация тематических моделей коллекций текстовых документов // Доклады РАН. 2014.}
 \end{frame}
 
-\begin{frame}{Гиперпараметры тематических моделей}
-\begin{itemize}
-    \item У большинства тематических моделей: число тем $T$
-    \item У LDA: $\alpha$, $\eta$
-    \item В ARTM: коэффициенты регуляризации
-\end{itemize}
-\end{frame}
 
-\begin{frame}[t]{Проблемы практического применения тематических моделей}
+\begin{frame}[t]{Проблемы тематических моделей на практике}
 
 С какими проблемами сталкиваются пользователи тематических моделей?
 \begin{enumerate}
-    \item Неинтерпретируемые или плохо интерпретируемые темы
-    \item Вводящие в заблуждение темы
-    \item Дублирующие темы
-    \item Мусорные темы
-    \item Неустойчивость
+    \item{ Неустойчивость \begin{itemize}
+        \item {Зависит от $T$ и других гиперпараметров}
+    \end{itemize}}
+    \item{ Мусорные темы \begin{itemize}
+        \item {При помощи сглаживания/разреживания можно выделить мусор в специальные фоновые темы}
+    \end{itemize}}
+    \item{ Дублирующие темы \begin{itemize}
+        \item {Регуляризатор декорреляции делает темы различными}
+    \end{itemize}}
+    \item{ Вводящие в заблуждение темы \begin{itemize}
+        \item {Увы, регламент валидации не разработан}
+    \end{itemize}}
+    \item{ Неинтерпретируемые или плохо интерпретируемые темы \begin{itemize}
+        \item {Увы, процедуры измерения интерпретируемости ненадёжны}
+    \end{itemize}}
 \end{enumerate}
-В теории настройка гиперпараметров может устранить проблемы 3, 4, 5. Если существовали бы процедуры измерения интерпретируемости и регламент валидации, то настройка гиперпараметров могла бы помочь и с проблемами 1 и 2.
+В теории настройка гиперпараметров может устранить проблемы 3, 4, 5. Если существовали бы чёткие критерии для проблем 1 и 2,  то настройка гиперпараметров могла бы помочь и с ними.
 \end{frame}
 \note{
 В теории именно настройка гиперпараметров отличает плохую модель от хорошей.
@@ -72,7 +75,9 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 }
 
 \begin{frame}{Настройка гиперпараметров тематических моделей}
-Проблема: никто не умеет подбирать гиперпараметры. В статье\footnote{Chen T. H., Thomas S. W., Hassan A. E. A survey on the use of topic models when mining software repositories //Empirical Software Engineering. – 2016.} сделали обзор 167 статей: 45\% работ не указывает использованное значение $T$ вовсе, 33\% приводит его без разъяснений о том, как оно было выбрано, 9\% используют перебор различных значений.
+Получаем много гиперпараметров: список регуляризаторов, их коэффициенты, темы.
+
+Проблема: никто не умеет подбирать гиперпараметры. В статье\footnote{Chen T. H., Thomas S. W., Hassan A. E. A survey on the use of topic models when mining software repositories – 2016.} сделали обзор 167 статей: 45\% работ не указывает использованное значение $T$ вовсе, 33\% приводит его без разъяснений о том, как оно было выбрано, 9\% используют перебор различных значений.
 
 \bigskip
 
@@ -80,20 +85,57 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 
 \end{frame}
 
-\begin{frame}[t]{Цель и задачи диссертационного исследования}
-\textbf{Цель:} разработка технологии построения интерпретируемых  тематических моделей, применимых для решения широкого класса задач тематического моделирования.
+\begin{frame}[t]{Суть диссертационной работы}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.99\textwidth]{Presentation/images/topicnet_paper.png}
+\end{figure} 
 
 \bigskip
+
+\textbf{Цель:} разработка технологии построения интерпретируемых  тематических моделей, применимых для решения широкого класса задач тематического моделирования.
+
+\end{frame}
+
+\begin{frame}[t]{Задачи диссертационного исследования}
+\small
 \textbf{Задачи:}
 \begin{enumerate}
-    \smallskip\item Автоматические критерии интерпретируемости: реализация, эмпирическое исследование, улучшение; новый критерий внутритекстовой когерентности.
+    \item Реализация, эмпирическое исследование и улучшение автоматически вычисляемых критериев интерпретируемости тематических моделей, в том числе нового критерия внутритекстовой когерентности.
+\end{enumerate}
 
-    \smallskip\item Разработка методологии и средств автоматизации проведения экспериментов по подбору стратегии регуляризации и выбору гиперпараметров тематической модели.
+\begin{figure}
+    %\begin{tabular}{p{7.5cm}p{3.5cm}}
+        \includegraphics[width=0.5\textwidth]{doc11358_topic0.png} %&
+        % \includegraphics[width=0.25\textwidth]{legend.eps} \\
+    %\end{tabular}
+\end{figure}
+\vspace{-7pt}
+Словопозиции обозначены серо-синим цветом, словопозиции верхних слов показаны красным цветом, зелёным цветом показаны словопозиции, имеющие ненулевой вклад в расчёт когерентности (т.е. попадающие в скользящее окно вместе с другим верхним словом).
+\normalsize
 
-    \smallskip\item Проектирование архитектуры библиотеки TopicNet; пользовательские регуляризаторы и метрики качества в TopicNet.
+\end{frame}
+\begin{frame}{Внутритекстовая когерентность}
+\begin{figure}
+   \centering
+    \includegraphics[width=0.8\textwidth, height=0.3\textheight]{astronomers_focon.eps} % .eps image is wrong scaled
+\end{figure}
 
-    \smallskip\item Поиск универсального <<рецепта>> построения тематических моделей, превосходящих LDA по ряду критериев качества.
+Идея: выделить все соседние слова текста и анализировать их распределение $\phi_{wt}$.\\
+\medskip
+(вместо того, чтобы выделять небольшое множество слов при помощи $\phi_{wt}$ и затем анализировать, как эти слова встречаются в тексте)
 
+\end{frame}
+
+
+\begin{frame}[t]{Задачи диссертационного исследования}
+\textbf{Задачи:}
+\begin{enumerate} \setcounter{enumi}{1}
+      \smallskip\item Разработка методологии и средств автоматизации проведения экспериментов по подбору стратегии регуляризации и выбору гиперпараметров тематической модели.
+    \smallskip  \item Проектирование архитектуры библиотеки TopicNet с открытым кодом на GitHub для реализации данной методологии. Разработка и реализация интерфейсов, обеспечивающих создание пользовательских регуляризаторов и метрик качества в TopicNet.
+    \smallskip  \item Поиск универсального <<рецепта>> построения аддитивно регуляризованных тематических моделей, превосходящих LDA по совокупности критериев качества, применение которого не требовало бы от пользователя знания теории ARTM.
+    % \smallskip  \item Решение прикладных задач с использованием разработанной библиотеки TopicNet, в частности, задачи кластеризации интентов в текстовой коллекции обращений клиентов в контактный центр.
     \smallskip\item Решение прикладных задач с использованием разработанной библиотеки TopicNet.
 
 \end{enumerate}
@@ -112,27 +154,120 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 \begin{frame}{Дерево эксперимента в библиотеке TopicNet}
 
 \begin{figure}[ht]
+\small
+Каждое ребро --- некое преобразование: модель-предок $\rightarrow$ модель-потомок. Все рёбра одного
+уровня описывают преобразования из одного и того же семейства,
+различающиеся лишь набором параметров.\\
     \centering
     \includegraphics[width=0.6\textwidth]{training_scheme_example.eps}
 \end{figure} 
         Первый этап: регуляризатор с $\tau \in \{\tau_1, \tau_2, \tau_3\}$.\\
-        Лучшими оказываются \emph{Model 1} и \emph{Model 2}, они проходят на второй этап.\\
-        К ним применяется другой регуляризатор с $\xi \in \{\xi_1, \xi_2\}$.
+        Лучшими оказываются \emph{Model 1} и \emph{Model 2}, они проходят на второй этап. К ним применяется другой регуляризатор с $\xi \in \{\xi_1, \xi_2\}$.
+\normalsize
 \end{frame}
 
-\begin{frame}{Cooking Machine: кубы, гиперпараметры и журналирование}
+\begin{frame}[t]{Cube: чертёж и инкубатор}
 
-Класс \texttt{Cube}~--- чертёж или инкубатор. Эксперимент --- цепочка кубов. Куб выполняет две важные функции.
-\begin{itemize}
-    \item \textit{спецификация}: пользователь задаёт параметры, нужно построить многомерное пространство поиска 
-    \item \textit{применение}: есть модель и точка в пространстве поиска, нужно построить модель-потомка.
-\end{itemize}
+Класс \texttt{Cube}~--- базовый класс, его наследники должны реализовать две важные функции.
 
-Regularizer Modifier Cube: <<применить к модели регуляризатор с произвольными параметрами и запустить процесс обучения модели на какое-то количество итераций>>.
+\textit{Спецификация}: пользователь задаёт параметры, нужно построить многомерное пространство поиска.
 
-Creator Cube: <<инициализировать модель произвольными параметрами>>.
+\begin{minipage}{0.39\textwidth}
+{\small \texttt{\textcolor{blue}{\_\_init\_\_}(\\
+.\ \ \ \ tau\_min,\ tau\_max,\\ 
+.\ \ \ \ xi\_combination\_mode,\\
+.\ \ \ \ eta\_array\\
+)}}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+\scalebox{2}{$\rightarrow$}
+\end{minipage}
+\begin{minipage}{0.45\textwidth}
+\begin{tikzpicture}
+   \pic [text=blue!75!cyan] at (0,1) {annotated cuboid={
+   width=300, height=200, depth=200, scale=.007, 
+   xstring={$\{\tau_1,\tau_2,\tau_3\}$}, 
+   ystring={$\{\xi_1,\xi_2\}$}, 
+   zstring={$\{\eta_1,\eta_2\}$},, 
+   }};
+\end{tikzpicture}
+\end{minipage}
+  
+% Эксперимент --- цепочка кубов.
+
+\textit{Применение}: есть модель и точка в пространстве поиска, нужно построить модель-потомка.
+
+\begin{minipage}{0.1\textwidth}
+    \begin{tikzpicture}
+        \draw (0,0) circle [radius=0.4] node {$M_1$};
+    \end{tikzpicture}
+\end{minipage}
+\begin{minipage}{0.4\textwidth}
+    \begin{tikzpicture}
+       \pic [text=blue!75!cyan] at (0,1) {annotated cuboid={
+       width=300, height=200, depth=200, scale=.007,
+          xstring=, ystring=, zstring=, 
+       }};
+       \draw[fill,blue] (-1,0)--(1.5,1) node[above]{$(\tau_1,\,\xi_2,\,\eta_1)$};
+       \draw (-1,0) circle[radius=2pt];
+    \end{tikzpicture}
+\end{minipage}
+\begin{minipage}{0.05\textwidth}
+    \scalebox{2}{$\rightarrow$}
+\end{minipage}
+\begin{minipage}{0.2\textwidth}
+    \includegraphics[width=\textwidth]{Presentation/images/incuber.png}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+    \scalebox{2}{$\rightarrow$}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+    \begin{tikzpicture}
+        \draw (0,0) circle [radius=0.4] node {$M_2$};
+    \end{tikzpicture}
+\end{minipage}
+
+
+% Regularizer Modifier Cube: <<применить к модели регуляризатор с произвольными параметрами и запустить процесс обучения модели на какое-то количество итераций>>.
+
+% Creator Cube: <<инициализировать модель произвольными параметрами>>.
 
 \end{frame}
+
+\begin{frame}{Отбор моделей в библиотеке TopicNet}
+
+Отбор моделей должен быть многокритериальным. Для удобства в TopicNet введён специальный язык отбора моделей:
+
+\begin{figure}[ht]
+% \footnotesize
+\raggedright
+\texttt{TopicKernel@word.average\_contrast > 0.95 * MAXIMUM( \\
+\hphantom{\ \ \ \ \ \ \ \ }TopicKernel@word.average\_contrast) \\
+\hphantom{\ \ } and PerplexityScore@all < 1.1 * MINIMUM( \\
+\hphantom{\ \ \ \ \ \ \ \ }PerplexityScore@all) \\
+\hphantom{\ \ } and SparsityPhiScore@word -> max\\
+\hphantom{\ \ } COLLECT 3} \\
+\label{DSL-example}
+\end{figure} 
+	
+%\begin{lstlisting}
+%S -> <Expr> | <Expr> <Clct>
+%<Clct> -> COLLECT <Int>
+%<Expr> -> <Expr> AND <Expr>
+%<Optr> -> less | eq | great
+%<Expr> -> <Literal> <Optr> <Number>
+%<Expr> -> <Literal> to MIN | <Literal> to MAX
+%<Literal> -> <ScoreName> | model<ParameterName>
+%\end{lstlisting} 
+
+\bigskip
+Поддержка пользовательским критериев качества:\\
+\medskip
+\texttt{model.num\_topics == 10 and SparsityPhiScore\@word > MEDIAN(SparsityPhiScore\@word) and MyCustomScore -> max}\\
+\medskip
+Так реализованы \texttt{BleiLaffertyScore}, \texttt{LogLift}, попарные расстояния между темами.
+\end{frame}
+
 
 \begin{frame}[t]{Рецепты моделирования}
 Инициализация модели в Baseline Recipe\\
@@ -185,109 +320,6 @@ Creator Cube: <<инициализировать модель произволь
 Пространство поиска: все возможные $\tau$ у регуляризатора с названием \texttt{decorrelation\_phi}.\\
 
 Стратегия обхода: начинаем с $\tau=0$, увеличиваем коэффициент линейно на 0.01 до тех пор, пока перплексия новой модели не будет слишком большой.
-\end{frame}
-
-\BeginSection{Многокритериальный отбор моделей}
-
-\begin{frame}{Когерентность и интерпретируемость}
-
-Почему нельзя просто оптимизировать когерентность? Общая схема измерения когерентности:
-
-\begin{enumerate}
-    \item Для каждой темы выбирается какой-то небольшой набор характеризующих её токенов (как правило, это 10 верхних токенов).
-    \item{Этот набор анализируется одним из двух способов:
-    \begin{itemize}
-        \item качество тем оценивается экспертом визуально по этим токенам;
-        \item качество тем оценивается путём автоматического вычисления определённых статистик, в частности, парной сочетаемости верхних токенов в текстовой коллекции.
-    \end{itemize}
-    }
-\end{enumerate}
-
-Если верхние токены темы встречаются в документах согласованным образом,  то тема называется \textit{когерентной} (буквально: связной, цельной, согласованной).
-\end{frame}
-
-\begin{frame}{Недостаточность когерентности}
-Одной когерентности недостаточно.
-
-В работе\footnote{A. Fan, F. Doshi-Velez, L. Miratrix. Assessing topic model relevance: Evaluation and informative priors // Statistical Analysis and Data Mining: The ASA Data Science Journa} описывается проблема мер когерентности в условиях наличия стоп-слов. Предлагается системный подход: оценивание каждой темы по нескольким критериям качества (в частности, когерентность и новый критерий LogLift).
-
-\smallskip
-\begin{table}[ht]
-    \small\centering
-    \begin{tabularx}{0.8\textwidth}{|X|l|l|}
-    \hline
-    Верхние слова &  UMass & UCI
-    \\ \hline	
-law gun state government right weapon crime bill firearm control &
--2.2584 & 0.7389
-    \\ \hline
-one would get go say think make time know like & \textbf{-0.9392} & \textbf{0.7822}
-    \\ \hline
-    \end{tabularx}
-\end{table}
-10 верхних слов в двух темах и оценки их качества при помощи UMass-когерентности и UCI-когерентности.
-
-
-\end{frame}
-
-\begin{frame}{Доля текста, покрытая верхними словами}
-
-\begin{figure}
-    %\begin{tabular}{p{7.5cm}p{3.5cm}}
-        \includegraphics[width=0.75\textwidth]{doc11358_topic0.png} %&
-        % \includegraphics[width=0.25\textwidth]{legend.eps} \\
-    %\end{tabular}
-\end{figure}
-\vspace{-7pt}
-Словопозиции обозначены серо-синим цветом, словопозиции верхних слов показаны красным цветом, зелёным цветом показаны словопозиции, имеющие ненулевой вклад в расчёт когерентности (т.е. попадающие в скользящее окно вместе с другим верхним словом).
-\end{frame}
-
-% \begin{frame}{Внутритекстовая когерентность}
-% \begin{figure}
-%    \centering
-%     \includegraphics[width=0.8\textwidth, height=0.3\textheight]{astronomers_focon.eps} % .eps image is wrong scaled
-% \end{figure}
-
-% Идея: выделить все соседние слова текста и анализировать их распределение $\phi_{wt}$.\\
-% \medskip
-% (вместо того, чтобы выделять небольшое множество слов при помощи $\phi_{wt}$ и затем анализировать, как эти слова встречаются в тексте)
-
-% \end{frame}
-
-
-
-\begin{frame}{Отбор моделей в библиотеке TopicNet}
-
-Значит, отбор должен быть многокритериальным. Для удобства в TopicNet введён специальный язык отбора моделей:
-
-\begin{figure}[ht]
-% \footnotesize
-\raggedright
-\texttt{TopicKernel@word.average\_contrast > 0.95 * MAXIMUM( \\
-\hphantom{\ \ \ \ \ \ \ \ }TopicKernel@word.average\_contrast) \\
-\hphantom{\ \ } and PerplexityScore@all < 1.1 * MINIMUM( \\
-\hphantom{\ \ \ \ \ \ \ \ }PerplexityScore@all) \\
-\hphantom{\ \ } and SparsityPhiScore@word -> max\\
-\hphantom{\ \ } COLLECT 3} \\
-\label{DSL-example}
-\end{figure} 
-	
-%\begin{lstlisting}
-%S -> <Expr> | <Expr> <Clct>
-%<Clct> -> COLLECT <Int>
-%<Expr> -> <Expr> AND <Expr>
-%<Optr> -> less | eq | great
-%<Expr> -> <Literal> <Optr> <Number>
-%<Expr> -> <Literal> to MIN | <Literal> to MAX
-%<Literal> -> <ScoreName> | model<ParameterName>
-%\end{lstlisting} 
-
-\bigskip
-Поддержка пользовательским критериев качества:\\
-\medskip
-\texttt{model.num\_topics == 10 and SparsityPhiScore\@word > MEDIAN(SparsityPhiScore\@word) and MyCustomScore -> max}\\
-\medskip
-Так реализованы \texttt{BleiLaffertyScore}, \texttt{LogLift}, попарные расстояния между темами.
 \end{frame}
 
 
@@ -419,10 +451,10 @@ L(\Phi^m, \Theta) = \sum_m \tau_m \sum_{d\in D} \sum_{w \in W^m} n_{dw} \ln p(w 
 \begin{tabular}{|l|l|l|}\hline
                 & Вес на первом уровне & Вес на втором уровне \\ \hline
 \texttt{@lemmatized}     & 0.5                  & 0.5                  \\ \hline
- \texttt{@theme\_ngramms}   & 0.5                  & 0.5                  \\ \hline
-\texttt{@verb\_ngramms}    & 0.1                  & 1                    \\ \hline
-\texttt{@verb\_lemmatized} & 0.1                  & 1                    \\ \hline
+ \texttt{@theme\_ngramms}   & 0.5                  & 0.5                  \\ 
 \texttt{@noun\_lemmatized} & 0.5                  & 0.1                 \\ \hline
+\texttt{@verb\_ngramms}    & 0.1                  & 1                    \\ 
+\texttt{@verb\_lemmatized} & 0.1                  & 1                    \\ \hline
 \end{tabular}
 \end{table}
 

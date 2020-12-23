@@ -1,0 +1,46 @@
+
+
+
+\begin{frame}{Когерентность и интерпретируемость}
+
+Почему нельзя просто оптимизировать когерентность? Общая схема измерения когерентности:
+
+\begin{enumerate}
+    \item Для каждой темы выбирается какой-то небольшой набор характеризующих её токенов (как правило, это 10 верхних токенов).
+    \item{Этот набор анализируется одним из двух способов:
+    \begin{itemize}
+        \item качество тем оценивается экспертом визуально по этим токенам;
+        \item качество тем оценивается путём автоматического вычисления определённых статистик, в частности, парной сочетаемости верхних токенов в текстовой коллекции.
+    \end{itemize}
+    }
+\end{enumerate}
+
+Если верхние токены темы встречаются в документах согласованным образом,  то тема называется \textit{когерентной} (буквально: связной, цельной, согласованной).
+\end{frame}
+
+\begin{frame}{Недостаточность когерентности}
+Одной когерентности недостаточно.
+
+В работе\footnote{A. Fan, F. Doshi-Velez, L. Miratrix. Assessing topic model relevance: Evaluation and informative priors // Statistical Analysis and Data Mining: The ASA Data Science Journa} описывается проблема мер когерентности в условиях наличия стоп-слов. Предлагается системный подход: оценивание каждой темы по нескольким критериям качества (в частности, когерентность и новый критерий LogLift).
+
+\smallskip
+\begin{table}[ht]
+    \small\centering
+    \begin{tabularx}{0.8\textwidth}{|X|l|l|}
+    \hline
+    Верхние слова &  UMass & UCI
+    \\ \hline	
+law gun state government right weapon crime bill firearm control &
+-2.2584 & 0.7389
+    \\ \hline
+one would get go say think make time know like & \textbf{-0.9392} & \textbf{0.7822}
+    \\ \hline
+    \end{tabularx}
+\end{table}
+10 верхних слов в двух темах и оценки их качества при помощи UMass-когерентности и UCI-когерентности.
+
+
+\end{frame}
+
+
+
