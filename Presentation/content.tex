@@ -21,17 +21,11 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 \]
 
 \smallskip
-\textbf{Критерий:} максимум правдоподобия с регуляризаторами $\tau_i R_i$:
-\[
-    \sum_{d \in D} \sum_{w \in d} n_{dw} \mathrm{ln} \sum_{t \in T} \phi_{wt} \theta_{td} + R(\Phi, \Theta) \rightarrow \underset{\Phi, \Theta}{\mathrm{max}}, \quad R(\Phi, \Theta) = \sum_{i} \tau_i R_i(\Phi, \Theta)
-\]
-\[
-\phi_{wt} \ge 0; \quad \sum_{w \in W} \phi_{wt} = 1; \quad \theta_{td} \ge 0; \quad \sum_{d \in D} \theta_{td} = 1.
-\]
-\bigskip
+\textbf{Критерий:} максимум правдоподобия либо максимум регуляризированного правдоподобия (правдоподобие складывается с некоторым числом взвешенных регуляризаторов $\sum \tau_i R_i$)
 
-\footnotetext{
-Воронцов К. В. Аддитивная регуляризация тематических моделей коллекций текстовых документов // Доклады РАН. 2014.}
+Получаем много гиперпараметров: список регуляризаторов, их коэффициенты, число тем $T$.
+% \footnotetext{
+% Воронцов К. В. Аддитивная регуляризация тематических моделей коллекций текстовых документов // Доклады РАН. 2014.}
 \end{frame}
 
 
@@ -74,29 +68,7 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 Неинтерпретируемые --- нужны критерии качества.
 }
 
-\begin{frame}{Настройка гиперпараметров тематических моделей}
-Получаем много гиперпараметров: список регуляризаторов, их коэффициенты, темы.
-
-Проблема: никто не умеет подбирать гиперпараметры. В статье\footnote{Chen T. H., Thomas S. W., Hassan A. E. A survey on the use of topic models when mining software repositories – 2016.} сделали обзор 167 статей: 45\% работ не указывает использованное значение $T$ вовсе, 33\% приводит его без разъяснений о том, как оно было выбрано, 9\% используют перебор различных значений.
-
-\bigskip
-
-Проблема: непонятно, как измерять интерпретируемость. Когерентность плохо взаимодействует со стоп-словами. Попытки определить плохие темы через расстояние до известных <<мусорных>> тем или через низкие значения когерентности дают лишь срез проблематичных тем и имеют ограниченную область применимости.
-
-\end{frame}
-
-\begin{frame}[t]{Суть диссертационной работы}
-
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.99\textwidth]{Presentation/images/topicnet_paper.png}
-\end{figure} 
-
-\bigskip
-
-\textbf{Цель:} разработка технологии построения интерпретируемых  тематических моделей, применимых для решения широкого класса задач тематического моделирования.
-
-\end{frame}
+% Проблема: никто не умеет подбирать гиперпараметры. В статье\footnote{Chen T. H., Thomas S. W., Hassan A. E. A survey on the use of topic models when mining software repositories – 2016.} сделали обзор 167 статей: 45\% работ не указывает использованное значение $T$ вовсе, 33\% приводит его без разъяснений о том, как оно было выбрано, 9\% используют перебор различных значений.
 
 \begin{frame}[t]{Задачи диссертационного исследования}
 \small
@@ -116,7 +88,8 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 \normalsize
 
 \end{frame}
-\begin{frame}{Внутритекстовая когерентность}
+\begin{frame}[t]{Задачи диссертационного исследования}
+% \begin{frame}{Внутритекстовая когерентность}
 \begin{figure}
    \centering
     \includegraphics[width=0.8\textwidth, height=0.3\textheight]{astronomers_focon.eps} % .eps image is wrong scaled
@@ -125,21 +98,30 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 Идея: выделить все соседние слова текста и анализировать их распределение $\phi_{wt}$.\\
 \medskip
 (вместо того, чтобы выделять небольшое множество слов при помощи $\phi_{wt}$ и затем анализировать, как эти слова встречаются в тексте)
-
+\bigskip
+\small{(таким образом, измерение интерпретируемости остаётся открытой проблемой)}
 \end{frame}
 
 
 \begin{frame}[t]{Задачи диссертационного исследования}
-\textbf{Задачи:}
-\begin{enumerate} \setcounter{enumi}{1}
-      \smallskip\item Разработка методологии и средств автоматизации проведения экспериментов по подбору стратегии регуляризации и выбору гиперпараметров тематической модели.
-    \smallskip  \item Проектирование архитектуры библиотеки TopicNet с открытым кодом на GitHub для реализации данной методологии. Разработка и реализация интерфейсов, обеспечивающих создание пользовательских регуляризаторов и метрик качества в TopicNet.
-    \smallskip  \item Поиск универсального <<рецепта>> построения аддитивно регуляризованных тематических моделей, превосходящих LDA по совокупности критериев качества, применение которого не требовало бы от пользователя знания теории ARTM.
-    % \smallskip  \item Решение прикладных задач с использованием разработанной библиотеки TopicNet, в частности, задачи кластеризации интентов в текстовой коллекции обращений клиентов в контактный центр.
-    \smallskip\item Решение прикладных задач с использованием разработанной библиотеки TopicNet.
+% \begin{frame}[t]{Основная идея диссертационной работы}
 
-\end{enumerate}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.99\textwidth]{Presentation/images/topicnet_paper.png}
+\end{figure} 
+
+\bigskip
+
+\textbf{Цель:} разработка технологии построения интерпретируемых  тематических моделей, применимых для решения широкого класса задач тематического моделирования.
+
+\bigskip
+\small{(Это задачи 2-5 диссертационного исследования)}
+
 \end{frame}
+
+
+
 
 % \begin{frame}[t]{Доступность тематических моделей}
 
@@ -174,9 +156,9 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 
 \begin{minipage}{0.39\textwidth}
 {\small \texttt{\textcolor{blue}{\_\_init\_\_}(\\
-.\ \ \ \ tau\_min,\ tau\_max,\\ 
-.\ \ \ \ xi\_combination\_mode,\\
-.\ \ \ \ eta\_array\\
+\hphantom{\ \ \ \ }tau\_min,\ tau\_max,\\ 
+\hphantom{\ \ \ \ }xi\_combination\_mode,\\
+\hphantom{\ \ \ \ }eta\_array\\
 )}}
 \end{minipage}
 \begin{minipage}{0.05\textwidth}
@@ -268,152 +250,25 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 Так реализованы \texttt{BleiLaffertyScore}, \texttt{LogLift}, попарные расстояния между темами.
 \end{frame}
 
-
-\begin{frame}[t]{Рецепты моделирования}
-Инициализация модели в Baseline Recipe\\
-
-\footnotesize \texttt{\\
-\textcolor{blue}{topics}: \\
-\ \ \textcolor{blue}{specific\_topics}: \colorbox{gray!30}{\{specific\_topics\}} \\
-\ \     \textcolor{blue}{background\_topics}: \colorbox{gray!30}{\{background\_topics\}} \\
-\textcolor{blue}{regularizers}: \\
-\ \ - DecorrelatorPhiRegularizer: \\
-\ \ \ \ \textcolor{blue}{name}: decorrelation\_phi \\
-\ \ \ \ \textcolor{blue}{topic\_names}: specific\_topics \\
-\ \ \ \ \textcolor{blue}{class\_ids}: \colorbox{gray!30}{\{modality\_list\}} \\
-\ \ - SmoothSparsePhiRegularizer: \\
-\ \ \ \ \textcolor{blue}{name}: smooth\_phi\_bcg \\
-\ \ \ \ \textcolor{blue}{topic\_names}: background\_topics \\
-\ \ \ \ \textcolor{blue}{class\_ids}: \colorbox{gray!30}{\{modality\_list\}} \\
-\ \ \ \ \textcolor{blue}{tau}: 0.1 \\
-\ \ \ \ \textcolor{blue}{relative}: true \\
-\ \ - SmoothSparseThetaRegularizer: \\
-\ \ \ \ \textcolor{blue}{name}: smooth\_theta\_bcg \\
-\ \ \ \ \textcolor{blue}{topic\_names}: background\_topics \\
-\ \ \ \ \textcolor{blue}{tau}: 0.1 \\
-\ \ \ \ \textcolor{blue}{relative}: true \\
-}
-
-\end{frame}
-
-\begin{frame}[t]{Рецепты моделирования}
-Перебор коэффициента декорреляции в Baseline Recipe\\
-
-\footnotesize \texttt{\\
-\textcolor{blue}{stages}: \\
-- RegularizersModifierCube: \\
-\ \ \textcolor{blue}{num\_iter}: 20 \\
-\ \ \textcolor{blue}{reg\_search}: add \\
-\ \ \textcolor{blue}{regularizer\_parameters}: \\
-\ \ \ \ \textcolor{blue}{name}: decorrelation\_phi \\
-\ \ \textcolor{blue}{selection}: \\
-\ \ \ \ - PerplexityScore\@all < 1.05 * MINIMUM(PerplexityScore\@all) and BleiLaffertyScore -> max \\
-\ \ \textcolor{blue}{strategy}: PerplexityStrategy \\
-\ \ \textcolor{blue}{strategy\_params}: \\
-\ \ \ \ \textcolor{blue}{start\_point}: 0 \\
-\ \ \ \ \textcolor{blue}{step}: 0.01 \\
-\ \ \ \ \textcolor{blue}{max\_len}: 50 \\
-\ \ \textcolor{blue}{tracked\_score\_function}: PerplexityScore\@all \\
-\ \ \textcolor{blue}{use\_relative\_coefficients}: true	\\
-}
-
-Пространство поиска: все возможные $\tau$ у регуляризатора с названием \texttt{decorrelation\_phi}.\\
-
-Стратегия обхода: начинаем с $\tau=0$, увеличиваем коэффициент линейно на 0.01 до тех пор, пока перплексия новой модели не будет слишком большой.
-\end{frame}
-
-
-\BeginSection{Способы повышения качества тематических моделей}
-
-\begin{frame}{Относительные коэффициенты регуляризации}
-Общие формулы:
-\[
-\theta_{td} = \norm_{t \in T} \Bigg(
-    n_{td} + \sum_{i=1}^k \lambda_i \Big[
-        \frac{n}{\sum_{d\in D} r_{id}}
-        \Big]
-    \theta_{td} \frac{\partial R_i}{\partial \theta_{td}}
-\Bigg)
-\]
-
-
-\[
-\phi_{wt} = \norm_{w \in W}\Bigg(
-    n_{wt} + \sum_{i=1}^k \lambda_i \Big[
-        \frac{n}{\sum_{t\in T} r_{it}}
-        \Big]
-    \phi_{wt} \frac{\partial R_i}{\partial \phi_{wt}}
-\Bigg)
-\]
-
-\small
+\begin{frame}{Другие возможности TopicNet}
 \begin{itemize}
-    \item { $r_{id} = \sum_{t\in T} \Big | \theta_{td} \frac{\partial R_i}{\partial \theta_{td}} \Big | $ --- воздействие регуляризатора на документ}
-
-    \item{$r_{it} = \sum_{w\in W} \Big| \phi_{wt} \frac{\partial R_i}{\partial \phi_{wt}} \Big| $ --- воздействие регуляризатора на тему}
-	\item { $\lambda_i$ - относительный коэффициент регуляризации, показывающий, \emph{во сколько раз} соответствующий регуляризатор влияет на оценку матриц больше, чем коллекция}
+    \item{Рецепты моделирования: задание эксперимента при помощи текста}
+    \begin{itemize}
+        \item (есть Baseline Recipe, основанный на стратегии Мурата Апишева) 
+    \end{itemize}
+    \item{стратегии обхода пространства поиска (гиперкуба параметров)}
+    \begin{itemize}
+        \item (например: начинаем с $\tau=0$, увеличиваем коэффициент линейно на 0.01 до тех пор, пока перплексия новой модели не будет слишком большой.) 
+    \end{itemize}
+    \item{Сохранение дерева эксперимента на диск}
+    \item{Поддержка пользовательских регуляризаторов}
+    \item{Средства визуализации}
 \end{itemize}
 
-Случай $\phi_{wt}$ реализован в BigARTM, случай $\theta_{td}$~--- нет (поскольку $r_{id}$ недоступен при параллельной реализации).
-
 \end{frame}
 
-\begin{frame}{Сглаживание и разреживание}
-Для регуляризаторов сглаживания/разреживания ($\Phi$ или $\Theta$) формула существенно упрощается!
+\BeginSection{Таксономия обращений и относительные коэффициенты}
 
-\begin{table}[]
-\begin{tabular}{l|c|c|}
-         & \multicolumn{2}{c}{Управляющий параметр}                                                                                                      \\ \hline
-         & $\tau$                                          & $\lambda$                                                                                   \\ \hline 
-         &    &          \\[-5pt]
-$\Phi$   & $\phi_{wt} = \norm_{w \in W}\Bigg(n_{wt} + \tau\Bigg)$    & $\phi_{wt} = \norm_{w \in W}\Bigg(n_{wt} + \lambda {\color{red}\frac{n}{|W||T|}}\Bigg)$    \\[15pt] \hline
-         &    &          \\[-5pt]
-$\Theta$ & $\theta_{td} = \norm_{t \in T} \Bigg(n_{td} + \tau\Bigg)$ & $\theta_{td} = \norm_{t \in T} \Bigg(n_{td} + \lambda {\color{red}\frac{n}{|D| |T|}}\Bigg)$ \\[15pt]  \hline
-\end{tabular}
-\end{table}
-Вывод: сглаживание/разреживание с абсолютным коэффициентом и относительным эквивалентно 
-
-\smallskip
-(в частности, можно вычислить абсолютный коэффициент сглаживания $\Theta$, эквивалентный заданному относительному).
-
-\end{frame}
-
-\begin{frame}{Репараметризация сглаживания/разреживания}
-	
-\begin{equation}
-\tau = \frac{n}{|D| \cdot |T|} \frac{\lambda}{(1-\lambda)}
-\end{equation}
-
-\begin{equation}
-\tau = \frac{n}{|W|\cdot|T|} \frac{\lambda}{(1-\lambda)}  
-\end{equation}
-
-Интерпретация: берём $\lambda$ частей априорного распределения
-\[
-\frac{1}{|T|}\text{ или }\frac{1}{|W|}
-\]
-и $(1-\lambda)$ частей от оценки максимума правдоподобия 
-\[
-\frac{n_{td}}{n_d}\text{ или }\frac{n_{wt}}{n_t}
-\]
-
-\end{frame}
-
-\begin{frame}{Относительные веса модальностей}
-Формула общего правдоподобия для мультимодального случая:
-
-\[
-L(\Phi^m, \Theta) = \sum_m \tau_m \sum_{d\in D} \sum_{w \in W^m} n_{dw} \ln p(w \cond d) \rightarrow \max, 
-\]
-
-где коэффициенты $\tau_m$ показывают \textit{вес} модальности $m$. Проинтерпретируем это выражение как введение $M-1$ дополнительного регуляризатора $\Theta$ с коэффициентами $\tau_m$. Тогда $\sum_{d\in D} r_{id}$ тоже выражается через константы, известные ещё на этапе построения коллекции:
-
-\[
-\tau_m = \lambda_m \frac{n}{\sum_d n_d^{(m)}} \iff
-\lambda_m = \tau_m \frac{\sum_d n_d^{(m)}}{n}
-\]
-
-\end{frame}
 
 \begin{frame}{Таксономия обращений}
 	Дано: большая коллекция диалогов между клиентом и оператором.\\
@@ -425,12 +280,12 @@ L(\Phi^m, \Theta) = \sum_m \tau_m \sum_{d\in D} \sum_{w \in W^m} n_{dw} \ln p(w 
 	    \item Иерархическая модель, два уровня.
 	    \item  Темы первого уровня описывают субъект диалога
 	    \item  Темы второго уровня должны описывать действие, в котором заинтересован пользователь.
-	    \item  Стратегия построения модели должна переноситься на похожие коллекции
+	    \item  \emph{Стратегия построения модели должна переноситься на похожие коллекции}
 	\end{itemize}
 
 \end{frame}
 
-\begin{frame}{Решение задачи}
+\begin{frame}{Дополнительные модальности}
 
 
 Используется пять модальностей:
@@ -446,41 +301,128 @@ L(\Phi^m, \Theta) = \sum_m \tau_m \sum_{d\in D} \sum_{w \in W^m} n_{dw} \ln p(w 
 %(информативные $n$-грамы выделены с помощью модифицированного алгоритма TopMine)}
 
 \bigskip
-Веса модальностей относительные и разные на двух уровнях.
+Формула общего правдоподобия для мультимодального случая:
+
+\[
+L(\Phi^m, \Theta) = \sum_m \tau_m \sum_{d\in D} \sum_{w \in W^m} n_{dw} \ln p(w \cond d) \rightarrow \max, 
+\]
+
+где коэффициенты $\tau_m$ показывают \textit{вес} модальности $m$. 
+
+% Проинтерпретируем это выражение как введение $M-1$ дополнительного регуляризатора $\Theta$ с коэффициентами $\tau_m$. Тогда $\sum_{d\in D} r_{id}$ тоже выражается через константы, известные ещё на этапе построения коллекции:
+
+%\[
+%\tau_m = \lambda_m \frac{n}{\sum_d n_d^{(m)}} \iff
+%\lambda_m = \tau_m \frac{\sum_d n_d^{(m)}}{n}
+%\]
+
+\end{frame}
+
+
+\begin{frame}[t]{Относительные коэффициенты регуляризации}
+
+Регуляризованное правдоподобие:
+\[
+    \sum_{d \in D} \sum_{w \in d} n_{dw} \mathrm{ln} \sum_{t \in T} \phi_{wt} \theta_{td} + \sum_{i} \tau_i R_i(\Phi, \Theta)
+    \rightarrow \underset{\Phi, \Theta}{\mathrm{max}}
+\]
+Общие формулы M-шага:
+\[
+\theta_{td} = \norm_{t \in T} \Bigg(
+    n_{td} + \sum_{i=1}^k \tau_i \theta_{td} \frac{\partial R_i}{\partial \theta_{td}}
+\Bigg), \quad \phi_{wt} = \norm_{w \in W}\Bigg(
+    n_{wt} + \sum_{i=1}^k \lambda_i 
+    \phi_{wt} \frac{\partial R_i}{\partial \phi_{wt}}
+\Bigg)
+\]
+
+\small
+Идея: просуммировать каждое слагаемое по всем документам (для $\Theta$) или темам (для $\Phi$); отнормировать слагаемые на эту сумму. Тогда вместо $\tau_i$ будет  $\lambda_i$ - относительный коэффициент регуляризации, показывающий, \emph{во сколько раз} соответствующий регуляризатор влияет на оценку матриц больше, чем коллекция.
+
+Случай $\phi_{wt}$ реализован в BigARTM, случай $\theta_{td}$~--- нет (поскольку $r_{id}$ недоступен при параллельной реализации).
+
+\footnotetext{
+Воронцов К. В. Аддитивная регуляризация тематических моделей коллекций текстовых документов // Доклады РАН. 2014.}
+
+\end{frame}
+
+\begin{frame}{Сглаживание, разреживание и веса модальностей}
+Для некоторых важных случаев формула существенно упрощается!
+
 \begin{table}[]
+\begin{tabular}{l|c|c|}
+         & \multicolumn{2}{c}{Управляющий параметр}                                                                                                      \\ \hline
+         & $\tau$                                          & $\lambda$                                                                                   \\ \hline 
+         &    &          \\[-5pt]
+$\Phi$   & $\phi_{wt} = \norm_{w \in W}\Bigg(n_{wt} + \tau\Bigg)$    & $\phi_{wt} = \norm_{w \in W}\Bigg(n_{wt} + \lambda {\color{red}\frac{n}{|W||T|}}\Bigg)$    \\[15pt] \hline
+         &    &          \\[-5pt]
+$\Theta$ & $\theta_{td} = \norm_{t \in T} \Bigg(n_{td} + \tau\Bigg)$ & $\theta_{td} = \norm_{t \in T} \Bigg(n_{td} + \lambda {\color{red}\frac{n}{|D| |T|}}\Bigg)$ \\[15pt]  \hline
+         &    &          \\[-5pt]
+$\tau_m$ & $\theta_{td} = \norm_{t \in T} \Bigg(n_{td} + \tau n_{td}^{(m)}\Bigg)$ & $\theta_{td} = \norm_{t \in T} \Bigg(n_{td} + \lambda  {
+    \color{red}\frac{n}{\sum_d n_d^{(m)}}
+    } n_{td}^{(m)}\Bigg)$ \\[15pt]  \hline
+\end{tabular}
+\end{table}
+Вывод: в этих случаях абсолютные коэффициенты и относительные эквивалентны. В частности, можно вычислить абсолютный коэффициент сглаживания $\Theta$, эквивалентный заданному относительному.
+\end{frame}
+
+
+\begin{frame}[t]{Решение. Полученные темы для двух коллекций}
+% Веса модальностей \emph{относительные} и разные на двух уровнях. \\[-15pt]
+%\\[-15pt]
+\begin{table}[!t]
 \begin{tabular}{|l|l|l|}\hline
                 & Вес на первом уровне & Вес на втором уровне \\ \hline
 \texttt{@lemmatized}     & 0.5                  & 0.5                  \\ \hline
  \texttt{@theme\_ngramms}   & 0.5                  & 0.5                  \\ 
-\texttt{@noun\_lemmatized} & 0.5                  & 0.1                 \\ \hline
-\texttt{@verb\_ngramms}    & 0.1                  & 1                    \\ 
-\texttt{@verb\_lemmatized} & 0.1                  & 1                    \\ \hline
+\texttt{@noun\_lemmatized} & \textbf{0.5}                  & \textbf{0.1}                 \\ \hline
+\texttt{@verb\_ngramms}    & \textbf{0.1}                  & \textbf{1}                    \\ 
+\texttt{@verb\_lemmatized} & \textbf{0.1}                  & \textbf{1}                    \\ \hline
 \end{tabular}
 \end{table}
 
-\end{frame}
-
-\begin{frame}{Полученные темы для двух коллекций}
-
+\footnotesize
 \begin{table}[!h]
 \begin{tabularx}{\textwidth}{|X|X|}
   \hline
   \textbf{Тарифный план} & \textbf{Запись на приём к врачу} \\
   \hline
-  \textsl{Как сменить тарифный план?} &   \textsl{Как записать на приём ребёнка?}\\
-  \textsl{Когда произошло изменение тарифного плана?} &   \textsl{Почему я не могу записаться на приём?}\\
-  \textsl{Как часто можно менять тарифный план?} &  \textsl{Почему в списке нет поликлиники №X?} \\
-  \textsl{Когда вступят в силу изменения тарифного плана?} &    \textsl{Почему в списке нет специалиста X?} \\
-  \textsl{Почему у меня не получается изменить тарифный план?} & \textsl{Как отменить запись?}\\
+  \textsl{Как \textbf{сменить} тарифный план?} &   \textsl{Как \textbf{записать} на приём ребёнка?}\\
+  \textsl{Когда \textbf{произошло изменение} тарифного плана?} &   \textsl{Почему я \textbf{не могу записаться} на приём?}\\
+  \textsl{Как часто можно \textbf{менять тарифный план}?} &  \textsl{\textbf{Не могу найти} в списке поликлинику №X?} \\
+  \textsl{Когда \textbf{вступят в силу изменения} тарифного плана?} &    \textsl{Почему в списке \textbf{отсутствует специалист} X?} \\
+  \textsl{Почему у меня \textbf{не получается изменить} тарифный план?} & \textsl{Как \textbf{отменить запись}?}\\
   \hline
 \end{tabularx}
 \caption{Различные подтемы темы верхнего уровня}
 \label{topic_subtopic}
 \end{table}
+\normalsize
 
 \end{frame}
 
 
+\BeginSection{Качество тематических моделей с параметрами <<по умолчанию>>}
+
+
+\begin{frame}{Конкуренты и <<параметры по умолчанию>>}
+
+\begin{table}[h]
+\begin{tabular}{|l|l|l|}
+\hline
+           & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Jaccard measure\\ of topic dissimilarity\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Average topic\\ coherence\end{tabular}} \\ \hline
+TopicNet   & \textbf{0.00169}                                                                                               & -2.551                                                                                 \\ \hline
+Gensim LDA & 0.01374                                                                                               & -2.747                                                                                 \\ \hline
+STTM DMM   & 0.37541                                                                                               & -2.726                                                                                 \\ \hline
+STTM PTM   & 0.02485                                                                                               & \textbf{-2.510}                                                                                 \\ \hline
+STTM WNTM  & 0.01997                                                                                               & -3.572                                                                                 \\ \hline 
+\end{tabular}
+\caption{Сравнение качества различных моделей, построенных при помощи различных программных средств}
+\end{table} 
+
+
+
+\end{frame}
 
 
 \begin{frame}{Функциональная зависимость $\Theta = f(\Phi)$}
@@ -645,26 +587,7 @@ L(\Phi, f(\Phi) ) + R(\Phi, f(\Phi) ) \to \max_{\Phi},
 
 \end{frame}
 
-\BeginSection{TopicNet и <<настройки по умолчанию>>}
-
-\begin{frame}{Конкуренты и <<параметры по умолчанию>>}
-
-\begin{table}[h]
-\begin{tabular}{|l|l|l|}
-\hline
-           & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Jaccard measure\\ of topic dissimilarity\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Average topic\\ coherence\end{tabular}} \\ \hline
-TopicNet   & \textbf{0.00169}                                                                                               & -2.551                                                                                 \\ \hline
-Gensim LDA & 0.01374                                                                                               & -2.747                                                                                 \\ \hline
-STTM DMM   & 0.37541                                                                                               & -2.726                                                                                 \\ \hline
-STTM PTM   & 0.02485                                                                                               & \textbf{-2.510}                                                                                 \\ \hline
-STTM WNTM  & 0.01997                                                                                               & -3.572                                                                                 \\ \hline 
-\end{tabular}
-\caption{Сравнение качества различных моделей, построенных при помощи различных программных средств}
-\end{table} 
-
-
-
-\end{frame}
+% \BeginSection{TopicNet и <<настройки по умолчанию>>}
 
 \begin{frame}{Базовый рецепт с быстрой векторизацией}
 
