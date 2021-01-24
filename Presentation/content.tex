@@ -37,7 +37,7 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 \end{frame}
 
 
-\begin{frame}[t]{Нерешённые проблемы ARTM}
+\begin{frame}[t]{Проблемы практического применения ARTM}
 
 \begin{enumerate}
     \item{На практике трудно подбирать сочетание регуляризаторов и коэффициента регуляризации \begin{itemize}
@@ -75,7 +75,7 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 \end{frame}
 
 
-\begin{frame}[t]{Cube: чертёж и инкубатор}
+\begin{frame}[t]{Куб гиперпараметров}
 
 Куб задаёт многомерное пространство поиска (гиперкуб параметров) и осуществляет его обход (например, полным перебором всех точек). \\
 \medskip
@@ -210,7 +210,7 @@ p(w \cond d) = \sum_{t \in T} p(w \cond t)p(t \cond d) = \sum_{t \in T} \phi_{wt
 C_{UMass} = \sum_{w,v \in Q_t} \frac{\log P(w, v) + \epsilon}{P(w)}, \quad
 C_{UCI} = \sum_{w,v \in Q_t} \frac{\log P(w, v) + \epsilon}{P(w)P(v)},
 \]
-где $\phi_{wt} > \phi_{vt}$, а $P(w, v)$ --- парная сочетаемость токенов $w$ и $v$ (основанная на счётчиках совместной встречаемости в скользящем окне).
+где $\phi_{wt} > \phi_{vt}$, а $P(w, v)$ --- парная сочетаемость токенов $w$ и $v$.
 
 \end{frame}
 
@@ -393,11 +393,20 @@ $\tau_m$ & $\theta_{td} = \norm_{t \in T} \Bigg(n_{td} + \tau n_{td}^{(m)}\Bigg)
 
 \begin{frame}{Конкуренты и <<параметры по умолчанию>>}
 
+В состав библиотеки TopicNet входит Baseline Recipe, основанный на популярной стратегии построения АРТМ:
+{\small
+\begin{itemize}
+    \item Заданное пользователем число предметных тем и одна фоновая тема
+    \item Сглаживание $\Phi$ и $\Theta$ у фоновой темы (с заранее подобранными \textcolor{red}{относительным коэффициентами})
+    \item Декорреляция предметных тем с неизвестным коэффициентом декоррелирования (\textcolor{red}{относительный} коэффициент автоматически увеличивается при помощи \textcolor{red}{куба} до момента резкого ухудшения перплексии)
+\end{itemize}
+}
+
 \begin{table}[h]
 \begin{tabular}{|l|l|l|}
 \hline
            & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Jaccard measure\\ of topic dissimilarity\end{tabular}} & \multicolumn{1}{c|}{\begin{tabular}[c]{@{}c@{}}Average topic\\ coherence\end{tabular}} \\ \hline
-TopicNet   & \textbf{0.00169}                                                                                               & -2.551                                                                                 \\ \hline
+Baseline Recipe   & \textbf{0.00169}                                                                                               & -2.551                                                                                 \\ \hline
 Gensim LDA & 0.01374                                                                                               & -2.747                                                                                 \\ \hline
 STTM DMM   & 0.37541                                                                                               & -2.726                                                                                 \\ \hline
 STTM PTM   & 0.02485                                                                                               & \textbf{-2.510}                                                                                 \\ \hline
@@ -557,7 +566,7 @@ LDA\_auto\_auto            & -2.749          & 25.458 \\ \hline
 
     \smallskip\item V. Bulatov, V. Alekseev, K. Vorontsov, D. Polyudova, E. Veselova, A. Goncharov, E. Egorov. TopicNet: Making Additive Regularisation for Topic Modelling Accessible // LREC 2020
 
-    \smallskip\item\color{red} И. А. Ирхин, В. Г. Булатов, К. В. Воронцов. Аддитивная регуляризация тематических моделей с быстрой векторизацией текста // Компьютерные исследования и моделирование, 2020
+    % \smallskip\item\color{red} И. А. Ирхин, В. Г. Булатов, К. В. Воронцов. Аддитивная регуляризация тематических моделей с быстрой векторизацией текста // Компьютерные исследования и моделирование, 2020
 \end{itemize}
 
 Зарегистрированные программы для ЭВМ в РФ:
